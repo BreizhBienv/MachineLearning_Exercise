@@ -133,7 +133,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 7023080324530545365, guid: abf1ea5066cce584bb9f0c95a867546c, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 1.7
+      value: 1.92
       objectReference: {fileID: 0}
     - target: {fileID: 7023080324530545365, guid: abf1ea5066cce584bb9f0c95a867546c, type: 3}
       propertyPath: m_LocalPosition.y
@@ -386,7 +386,7 @@ MonoBehaviour:
   - {fileID: 1952975842}
   - {fileID: 147565870}
   GatesSpeed: 0.7
-  HalfScreenWidth: 1.4
+  HalfScreenWidth: 1.45
   YRangeOffset: 2
   YTopClamp: 1.5
   YBottomClamp: -1.1

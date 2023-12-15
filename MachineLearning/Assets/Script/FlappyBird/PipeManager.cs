@@ -35,7 +35,7 @@ public class PipeManager : MonoBehaviour
             GameObject g = Gates[i];
             GameObject prev = Gates[(i + 1) % Gates.Length];
 
-            if (g.transform.position.x < -HalfScreenWidth - PipeWidth)
+            if (g.transform.position.x <= -HalfScreenWidth - PipeWidth)
             {
                 float yOffset = Random.Range(-YRangeOffset, YRangeOffset);
 
