@@ -3693,7 +3693,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ccccfb514084cff459454e1a2b187522, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  RandomRange: 500
   MaxPopulation: 100
+  TopSurvivorPercent: 15
+  TopMatingPercent: 40
 --- !u!1 &2058930758
 GameObject:
   m_ObjectHideFlags: 0

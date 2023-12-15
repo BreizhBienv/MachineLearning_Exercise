@@ -6,13 +6,13 @@ public class Population : MonoBehaviour
 {
     public static Population Instance { get; private set; }
 
-    public readonly List<float> Target = new List<float>(new[]
+    public readonly float[] Target = 
     {
         0.0f,   //00
         1.0f,   //10
         1.0f,   //01
         0.0f    //11
-    });
+    };
 
     int currentGeneration = -1;
 
@@ -67,12 +67,12 @@ public class Population : MonoBehaviour
         //only top 'TopSurvivorPercent' of the population will be part of the new generation
         int s = (TopSurvivorPercent * MaxPopulation) / 100;
         for (int i = 0; i < s; ++i)
-            newGen[i] = population[i];
+            newGen.Add(population[i]);
 
 
         //perform mating
         //only top 50% of fittest individual from current generation will mate
-        for (int i = s + 1; i < MaxPopulation; ++i)
+        for (int i = s; i < MaxPopulation; ++i)
         {
             int populationSample = (TopMatingPercent / 100) * MaxPopulation;
 
@@ -83,7 +83,7 @@ public class Population : MonoBehaviour
             Individual parent2 = population[r];
 
             Individual offspring = parent1.Mate(parent2);
-            newGen[i] = offspring;
+            newGen.Add(offspring);
         }
 
         population = newGen;
@@ -96,5 +96,27 @@ public class Population : MonoBehaviour
     Individual GetChosenOne()
     {
         return population[0];
+    }
+
+    public float GetOutput(int input1, int input2)
+    {
+        float output = 0;
+
+        if(input1 == 1)
+        {
+            if (input2 == 1)
+                output = GetChosenOne().Chromosome[0];
+            else if (input2 == 0)
+                output = GetChosenOne().Chromosome[1];
+        }
+        else if(input1 == 0)
+        {
+            if (input2 == 1)
+                output = GetChosenOne().Chromosome[2];
+            else if (input2 == 0)
+                output = GetChosenOne().Chromosome[3];
+        }
+
+        return output;
     }
 }

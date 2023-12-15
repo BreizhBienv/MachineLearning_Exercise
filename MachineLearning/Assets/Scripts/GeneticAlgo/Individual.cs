@@ -4,14 +4,12 @@ using UnityEngine;
 
 public class Individual
 {
-    List<float> Chromosome;
+    public float[] Chromosome = { 0.0f, 0.0f, 0.0f, 0.0f };
     public float Fitness;
 
     public Individual()
     {
-        Chromosome = new List<float>(Population.Instance.Target.Count);
-
-        for (int i = 0; i < Chromosome.Capacity; ++i)
+        for (int i = 0; i < Chromosome.Length; ++i)
         {
             Chromosome[i] = Random.Range(
                 -Population.Instance.RandomRange,
@@ -21,7 +19,7 @@ public class Individual
         Fitness = CalculFitness();
     }
 
-    public Individual(List<float> chromosome)
+    public Individual(float[] chromosome)
     {
         Chromosome = chromosome;
         Fitness = CalculFitness();
@@ -29,27 +27,31 @@ public class Individual
 
     public Individual Mate(Individual Other)
     {
-        List<float> target = Population.Instance.Target;
-        int len = target.Count;
+        float[] target = Population.Instance.Target;
+        int len = target.Length;
 
         //Chromosome of offspring
-        List<float> childChromosome = new List<float>(len);
+        float[] childChromosome = new float[len];
 
         for (int i = 0; i < len; ++i)
         {
-            float proba = Random.Range(0, 100) / 100;
+            float rand = Random.Range(0.0f, 100.0f);
+            float proba = rand / 100.0f;
 
-            //Take self gene
-            if (proba < 0.45f)
+            if (proba < 0.45f)                          //Take self gene
+            {
                 childChromosome[i] = Chromosome[i];
-
-            //Take other gene
-            if (0.45f <= proba && proba < 0.90f)
+            }
+            else if (0.45f <= proba && proba < 0.90f)   //Take other gene
+            {
                 childChromosome[i] = Other.Chromosome[i];
-
-            //Mutation to keep diversity
-            if (proba <= 0.90f)
-                childChromosome[i] = Random.Range(float.MinValue, float.MaxValue);
+            }
+            else if (0.90f <= proba)                    //Mutation to keep diversity
+            {
+                childChromosome[i] = Random.Range(
+                    -Population.Instance.RandomRange,
+                    Population.Instance.RandomRange);
+            }
         }
 
         // create new Individual(offspring) using  
@@ -58,18 +60,18 @@ public class Individual
 
     float CalculFitness()
     {
-        float value = float.MaxValue;
+        float value = 0.0f;
 
-        List<float> target = Population.Instance.Target;
+        float[] target = Population.Instance.Target;
 
-        for (int i = 0; i < target.Count; ++i)
+        for (int i = 0; i < target.Length; ++i)
         {
             float targetGene = target[i];
-            float gene = Mathf.Abs(Chromosome[i]);
-            value += (targetGene - gene);
+            float gene = Chromosome[i];
+            value += Mathf.Abs(targetGene - gene);
         }
 
-        return value /target.Count;
+        return value / target.Length;
     }
 
     public static bool operator <(Individual lhs, Individual rhs)
