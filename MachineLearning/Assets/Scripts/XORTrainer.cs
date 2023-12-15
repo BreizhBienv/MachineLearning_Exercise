@@ -5,6 +5,14 @@ using System.Collections.Generic;
 using System;
 using System.Globalization;
 
+enum BinarySet
+{
+    b00,
+    b10,
+    b01,
+    b11,
+}
+
 public class XORTrainer : MonoBehaviour
 {
     private float[,] trainingSet = new float[4,2];
@@ -32,10 +40,10 @@ public class XORTrainer : MonoBehaviour
         // set input values
         trainingSet[0, 0] = 0f;
         trainingSet[0, 1] = 0f;
-        trainingSet[1, 0] = 0f;
-        trainingSet[1, 1] = 1f;
-        trainingSet[2, 0] = 1f;
-        trainingSet[2, 1] = 0f;
+        trainingSet[1, 0] = 1f;
+        trainingSet[1, 1] = 0f;
+        trainingSet[2, 0] = 0f;
+        trainingSet[2, 1] = 1f;
         trainingSet[3, 0] = 1f;
         trainingSet[3, 1] = 1f;
         // set expected output values
@@ -87,6 +95,7 @@ public class XORTrainer : MonoBehaviour
 
         //MLPNet.GenerateOutput(inputList);
         //outputLabel.text = MLPNet.GetOutputs()[0].ToString();
+        outputLabel.text = Population.Instance.GetOutput(input1, input2).ToString();
 
         Debug.Log("Network output generated!");
     }
@@ -113,6 +122,7 @@ public class XORTrainer : MonoBehaviour
                 //outputList.Clear();
                 //outputList.Add(refOutputs[i]);
                 //MLPNet.LearnPattern(inputList, outputList);
+                Population.Instance.NewGeneration();
             }
         }
         Debug.Log("Network trained " + nbIterations  + " times!");
