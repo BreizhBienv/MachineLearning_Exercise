@@ -1,53 +1,63 @@
-using System.Collections;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class PipeManager : MonoBehaviour
 {
-    [SerializeField]
-    private GameObject[] Gates = new GameObject[2];
+    [NonSerialized] public List<GameObject> Pipes;
 
-    [SerializeField]
-    private float GatesSpeed;
+    [SerializeField] private GameObject PipesPrefab;
 
-    [SerializeField]
-    private float HalfScreenWidth;
-    private float PipeWidth;
+    [SerializeField] private float SpawnDelay = 1.75f;
+    private float Timer;
 
-    [SerializeField]
-    private float YRangeOffset;
-    [SerializeField]
-    private float YTopClamp;
-    [SerializeField]
-    private float YBottomClamp;
+    [SerializeField] private float HeightRangeOffset = 0.5f;
+    [SerializeField] private float YTopClamp;
+    [SerializeField] private float YBottomClamp;
 
-    // Start is called before the first frame update
-    void Start()
+    [SerializeField] private float SecondsToDestroy = 10f;
+
+    private void Start()
     {
-        PipeWidth = Gates[0].GetComponentInChildren<BoxCollider2D>().size.x;
+        Pipes = new List<GameObject>();
     }
 
     // Update is called once per frame
     void Update()
     {
-        for (int i = 0;  i < Gates.Length; i++)
-        {
-            GameObject g = Gates[i];
-            GameObject prev = Gates[(i + 1) % Gates.Length];
+        Timer += Time.deltaTime;
 
-            if (g.transform.position.x <= -HalfScreenWidth - PipeWidth)
-            {
-                float yOffset = Random.Range(-YRangeOffset, YRangeOffset);
+        if (Timer < SpawnDelay)
+            return;
 
-                float newY = yOffset + prev.transform.position.y;
-                newY = Mathf.Clamp(newY, YBottomClamp, YTopClamp);
+        Timer = 0f;
 
-                g.transform.position = new Vector3(
-                    HalfScreenWidth + PipeWidth,
-                    newY);
-            }
+        SpawnPipe();
+    }
 
-            g.transform.position -= new Vector3(GatesSpeed * Time.deltaTime, 0);
-        }
+    void SpawnPipe()
+    {
+        float yPos = transform.position.y;
+
+        yPos += UnityEngine.Random.Range(-HeightRangeOffset, HeightRangeOffset);
+        yPos = Mathf.Clamp(yPos, YBottomClamp, YTopClamp);
+
+        Vector3 spawnPos = transform.position + Vector3.up * yPos;
+
+        GameObject newPipes = Instantiate(PipesPrefab, spawnPos, Quaternion.identity);
+
+       Pipes.Add(newPipes);
+
+        Destroy(newPipes, SecondsToDestroy);
+    }
+
+    public void OnResetGame()
+    {
+        foreach (var pipe in Pipes)
+            Destroy(pipe);
+
+        Pipes.Clear();
+
+        Timer = 0f;
     }
 }
