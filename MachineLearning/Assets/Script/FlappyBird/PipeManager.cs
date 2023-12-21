@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class PipeManager : MonoBehaviour
 {
-    [NonSerialized] public List<GameObject> Pipes;
+    private List<GameObject> Pipes;
 
     [SerializeField] private GameObject PipesPrefab;
 
@@ -53,11 +53,22 @@ public class PipeManager : MonoBehaviour
 
     public void OnResetGame()
     {
-        foreach (var pipe in Pipes)
-            Destroy(pipe);
+        var foundPipes = FindObjectsOfType<PipeBehaviour>();
+        foreach (var pipe in foundPipes)
+            Destroy(pipe.gameObject);
 
         Pipes.Clear();
 
         Timer = 0f;
+    }
+
+    public GameObject GetNextPipe()
+    {
+        return Pipes[0];
+    }
+
+    public void PassedPipe()
+    {
+        Pipes.RemoveAt(0);
     }
 }

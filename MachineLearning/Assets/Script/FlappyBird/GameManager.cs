@@ -26,7 +26,7 @@ public class GameManager : MonoBehaviour
             Instance = this;
         }
 
-        Time.timeScale = 1.0f;
+        Time.timeScale = 0f;
     }
 
     private void Start()
@@ -45,7 +45,7 @@ public class GameManager : MonoBehaviour
         Time.timeScale = 0f;
     }
 
-    public void TryAgain()
+    public void Play()
     {
         Time.timeScale = 1f;
 
