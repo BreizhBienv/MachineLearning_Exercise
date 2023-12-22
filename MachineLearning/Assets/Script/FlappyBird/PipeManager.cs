@@ -15,15 +15,24 @@ public class PipeManager : MonoBehaviour
     [SerializeField] private float YTopClamp;
     [SerializeField] private float YBottomClamp;
 
-    [SerializeField] private float SecondsToDestroy = 10f;
+    private float SecondsToDestroy = 10f;
+
+    private float HalfPipeWidth;
 
     private void Start()
     {
         Pipes = new List<GameObject>();
+        HalfPipeWidth = PipesPrefab.GetComponentInChildren<BoxCollider2D>().size.x / 2f;
     }
 
     // Update is called once per frame
     void Update()
+    {
+        PassedPipe();
+        AdvanceSpawnPipeDelay();
+    }
+
+    void AdvanceSpawnPipeDelay()
     {
         Timer += Time.deltaTime;
 
@@ -62,6 +71,13 @@ public class PipeManager : MonoBehaviour
 
     public void PassedPipe()
     {
-        Pipes.RemoveAt(0);
+        FlappyBehaviour flappy = FindAnyObjectByType<FlappyBehaviour>();
+
+        if (flappy == null || Pipes.Count <= 0)
+            return;
+
+        GameObject pipe = Pipes[0];
+        if (flappy.transform.position.x > (pipe.transform.position.x + HalfPipeWidth))
+            Pipes.RemoveAt(0);
     }
 }

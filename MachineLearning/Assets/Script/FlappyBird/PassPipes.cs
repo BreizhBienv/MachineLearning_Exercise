@@ -6,13 +6,6 @@ public class PassPipes : MonoBehaviour
 {
     private bool PassedOnce = false;
 
-    private PipeManager PipeM;
-
-    private void Start()
-    {
-        PipeM = FindObjectOfType<PipeManager>();
-    }
-
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.GetComponent<FlappyBehaviour>() == null)
@@ -23,6 +16,5 @@ public class PassPipes : MonoBehaviour
 
         PassedOnce = true;
         GameManager.Instance.UpdateScore();
-        PipeM.PassedPipe();
     }
 }

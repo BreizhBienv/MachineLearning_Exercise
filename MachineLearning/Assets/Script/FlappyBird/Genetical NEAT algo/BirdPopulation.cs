@@ -9,18 +9,20 @@ public class BirdPopulation : MonoBehaviour
 {
     public static BirdPopulation Instance { get; private set; }
 
-    [Header("Population")]
+    [Header("UI/Population")]
     [SerializeField] private TMP_InputField InputMaxPop;
 
-    [Header("Survivor")]
+    [Header("UI/Survivor")]
     [SerializeField] private TMP_InputField InputS;
     [SerializeField] private Scrollbar      ScrollBarS;
 
-    [Header("Mating")]
+    [Header("UI/Mating")]
     [SerializeField] private TMP_InputField InputM;
     [SerializeField] private  Scrollbar     ScrollBarM;
 
+    [Header("Algo param")]
     [SerializeField] public float RangeOfRandom = 500f;
+    [SerializeField] public float RangeRandBias = 500f;
 
     [SerializeField] private GameObject BirdPrefab;
 
