@@ -1,5 +1,7 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 
@@ -11,13 +13,15 @@ public class GameManager : MonoBehaviour
     [SerializeField] private GameObject InGameCanvas;
 
     [SerializeField] private TextMeshProUGUI ScoreTxt;
-    [SerializeField] private TextMeshProUGUI HighScoreTxt;
+
+    [SerializeField] private TextMeshProUGUI GenTxt;
+    [SerializeField] private TextMeshProUGUI AliveTxt;
 
     [SerializeField] private PipeManager PipeSpawner;
 
-    [SerializeField] private FlappyBehaviour Flappy;
-
     private int Score = 0;
+
+    [NonSerialized] public List<GameObject> BirdsAlive = new List<GameObject>();
 
     private void Awake()
     {
@@ -32,13 +36,13 @@ public class GameManager : MonoBehaviour
     private void Start()
     {
         ScoreTxt.text = Score.ToString();
-
-        HighScoreTxt.text = PlayerPrefs.GetInt("HighScore", 0).ToString();
-        UpdateHighScore();
     }
 
     public void GameOver()
     {
+        if (BirdsAlive.Count > 0)
+            return;
+
         InGameCanvas.SetActive(false);
         GameOverCanvas.SetActive(true);
 
@@ -55,24 +59,30 @@ public class GameManager : MonoBehaviour
         Score = 0;
         ScoreTxt.text = Score.ToString();
 
-        Flappy.OnResetGame();
         PipeSpawner.OnResetGame();
     }
 
+    public void RemoveAlive(GameObject obj)
+    {
+        BirdsAlive.Remove(obj);
+        UpdateAlive();
+    }
+
+    #region UI
     public void UpdateScore()
     {
         Score++;
         ScoreTxt.text = Score.ToString();
-
-        UpdateHighScore();
     }
 
-    void UpdateHighScore()
+    public void UpdateGen(int newGen)
     {
-        if (Score < PlayerPrefs.GetInt("HighScore"))
-            return;
-
-        PlayerPrefs.SetInt("HighScore", Score);
-        HighScoreTxt.text = Score.ToString();
+        GenTxt.text = newGen.ToString();
     }
+
+    public void UpdateAlive()
+    {
+        AliveTxt.text = BirdsAlive.Count.ToString();
+    }
+    #endregion
 }

@@ -4,11 +4,11 @@ using UnityEngine;
 
 public class PipeManager : MonoBehaviour
 {
-    private List<GameObject> Pipes;
+    [NonSerialized] public List<GameObject> Pipes;
 
     [SerializeField] private GameObject PipesPrefab;
 
-    [SerializeField] private float SpawnDelay = 1.75f;
+    [SerializeField] private float SpawnDelay = 1.5f;
     private float Timer;
 
     [SerializeField] private float HeightRangeOffset = 0.5f;
@@ -27,7 +27,7 @@ public class PipeManager : MonoBehaviour
     {
         Timer += Time.deltaTime;
 
-        if (Timer < SpawnDelay)
+        if (Timer <= SpawnDelay)
             return;
 
         Timer = 0f;
@@ -37,16 +37,14 @@ public class PipeManager : MonoBehaviour
 
     void SpawnPipe()
     {
-        float yPos = transform.position.y;
-
-        yPos += UnityEngine.Random.Range(-HeightRangeOffset, HeightRangeOffset);
+        float yPos = UnityEngine.Random.Range(-HeightRangeOffset, HeightRangeOffset);
         yPos = Mathf.Clamp(yPos, YBottomClamp, YTopClamp);
 
         Vector3 spawnPos = transform.position + Vector3.up * yPos;
 
         GameObject newPipes = Instantiate(PipesPrefab, spawnPos, Quaternion.identity);
 
-       Pipes.Add(newPipes);
+        Pipes.Add(newPipes);
 
         Destroy(newPipes, SecondsToDestroy);
     }
@@ -60,11 +58,6 @@ public class PipeManager : MonoBehaviour
         Pipes.Clear();
 
         Timer = 0f;
-    }
-
-    public GameObject GetNextPipe()
-    {
-        return Pipes[0];
     }
 
     public void PassedPipe()
