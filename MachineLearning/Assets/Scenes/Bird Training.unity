@@ -453,7 +453,7 @@ MonoBehaviour:
   ScrollBarS: {fileID: 129392275}
   InputM: {fileID: 29278139}
   ScrollBarM: {fileID: 1251413600}
-  RangeOfRandom: 100
+  RangeOfRandom: 10
   RangeRandBias: 100
   BirdPrefab: {fileID: 4003533385302428095, guid: b889affd0c053154d862c9f6cae93e59, type: 3}
 --- !u!1 &63819248

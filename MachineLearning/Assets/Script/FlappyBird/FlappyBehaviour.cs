@@ -30,7 +30,7 @@ public class FlappyBehaviour : MonoBehaviour
     {
         rb = GetComponent<Rigidbody2D>();
         PipeM = FindAnyObjectByType<PipeManager>();
-        CapsuleHalfWidth = new Vector3(GetComponent<CapsuleCollider2D>().size.x / 4f, 0);
+        CapsuleHalfWidth = new Vector3(GetComponent<CapsuleCollider2D>().size.x / 2f, 0);
     }
 
     // Update is called once per frame
@@ -46,10 +46,10 @@ public class FlappyBehaviour : MonoBehaviour
     {
         transform.rotation = Quaternion.Euler(0, 0, rb.velocity.y * RotationSpeed);
 
-        Vector2 ray135 = Vector2.up + Vector2.left;
-        Vector2 ray225 = Vector2.down + Vector2.left;
+        Vector2 ray135 = Vector2.up /*+ Vector2.left*/;
+        Vector2 ray225 = Vector2.down/* + Vector2.left*/;
 
-        Vector3 pos = transform.position + CapsuleHalfWidth;
+        Vector3 pos = transform.position - CapsuleHalfWidth;
 
         Debug.DrawRay(pos, ray135 * RayLength);
         Debug.DrawRay(pos, ray225 * RayLength);
@@ -58,12 +58,12 @@ public class FlappyBehaviour : MonoBehaviour
         RaycastHit2D hit225 = Physics2D.Raycast(pos, ray225, RayLength, DeathLayers.value);
 
         if (hit135.collider != null)
-            BackRayHitPos.x = hit135.distance;
+            BackRayHitPos.x = hit135.point.y;
         else
             BackRayHitPos.x = 0;
         
         if (hit225.collider != null)
-            BackRayHitPos.y = hit225.distance;
+            BackRayHitPos.y = hit225.point.y;
         else
             BackRayHitPos.y = 0;
     }
@@ -126,20 +126,20 @@ public class FlappyBehaviour : MonoBehaviour
 
         if (BackRayHitPos.x != 0)
         {
-            //float TopSafeGuard = Mathf.Abs(BirdHeight - BackRayHitPos.x);
-            float TopSafeGuard = BackRayHitPos.x;
+            float TopSafeGuard = Mathf.Abs(BirdHeight - BackRayHitPos.x);
+            //float TopSafeGuard = BackRayHitPos.x;
             WheightedSum += TopSafeGuard * Individual.BackRay.x;
         }
 
         if (BackRayHitPos.y != 0)
         {
-            //float BottomSafeGuard = Mathf.Abs(BirdHeight - BackRayHitPos.y);
-            float BottomSafeGuard = BackRayHitPos.y;
+            float BottomSafeGuard = Mathf.Abs(BirdHeight - BackRayHitPos.y);
+            //float BottomSafeGuard = BackRayHitPos.y;
             WheightedSum += BottomSafeGuard * Individual.BackRay.y;
         }
 
         float result = (float)Math.Tanh(WheightedSum);
-        bool CanJump = result > 0.5f ? true : false;
+        bool CanJump = result > 0f ? true : false;
 
         return CanJump;
     }
