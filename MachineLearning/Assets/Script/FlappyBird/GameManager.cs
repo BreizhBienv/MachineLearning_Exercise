@@ -1,7 +1,5 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using TMPro;
 using UnityEngine;
 
@@ -9,17 +7,23 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager Instance;
 
+    [Header("Canvas")]
     [SerializeField] private GameObject GameOverCanvas;
     [SerializeField] private GameObject InGameCanvas;
 
+    [Header("Scores")]
     [SerializeField] private TextMeshProUGUI ScoreTxt;
+    [SerializeField] private TextMeshProUGUI HighScoreTxt;
 
+    [Header("Population Info")]
     [SerializeField] private TextMeshProUGUI GenTxt;
     [SerializeField] private TextMeshProUGUI AliveTxt;
 
+    [Header("SceneObjects")]
     [SerializeField] private PipeManager PipeSpawner;
 
     private int Score = 0;
+    private int HighScore = 0;
 
     [NonSerialized] public List<GameObject> BirdsAlive = new List<GameObject>();
 
@@ -73,6 +77,15 @@ public class GameManager : MonoBehaviour
     {
         Score++;
         ScoreTxt.text = Score.ToString();
+
+        if (Score > HighScore)
+            UpdateHighScore(Score);
+    }
+
+    private void UpdateHighScore(int NewHighScore)
+    {
+        HighScore = NewHighScore;
+        HighScoreTxt.text = HighScore.ToString();
     }
 
     public void UpdateGen(int newGen)
@@ -83,6 +96,37 @@ public class GameManager : MonoBehaviour
     public void UpdateAlive()
     {
         AliveTxt.text = BirdsAlive.Count.ToString();
+    }
+
+    public void ResetScores()
+    {
+        Score = 0;
+        ScoreTxt.text = Score.ToString();
+
+        UpdateHighScore(Score);
+    }
+
+    public void SaveAI()
+    {
+        List<BirdIndividual> pop = BirdPopulation.Instance.GetSortedPopulation();
+
+        if (pop.Count <= 0)
+            return;
+
+        SerializeData.SaveGame(pop[0], BirdPopulation.Instance.CurrentGen, HighScore);
+    }
+
+    public void LoadAI()
+    {
+        BirdIndividual loadedBird = null;
+        int loadedGen = -1;
+        int loadedScore = 0;
+
+        SerializeData.LoadData(out loadedBird, out loadedGen, out loadedScore);
+
+        UpdateHighScore(loadedScore);
+        BirdPopulation.Instance.CurrentGen = loadedGen;
+        BirdPopulation.Instance.NewSpecies(loadedBird);
     }
     #endregion
 }

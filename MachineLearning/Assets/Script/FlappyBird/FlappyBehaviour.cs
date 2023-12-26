@@ -1,8 +1,4 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Runtime.InteropServices.WindowsRuntime;
-using System.Security.Cryptography;
 using UnityEngine;
 
 public class FlappyBehaviour : MonoBehaviour
@@ -12,7 +8,6 @@ public class FlappyBehaviour : MonoBehaviour
     [SerializeField] float UpwardVelocity = 1.5f;
     [SerializeField] float RotationSpeed = 10f;
 
-    [Range(0f, 1f)]
     [SerializeField] float RayLength = 0.2f;
 
     private Rigidbody2D rb;
@@ -23,14 +18,14 @@ public class FlappyBehaviour : MonoBehaviour
     #region NEAT
     public BirdIndividual Individual;
 
-    private Vector2 BackRayHitPos = Vector2.zero;
+    private Vector2 RayHitPos = Vector2.zero;
     #endregion
     
     private void Start()
     {
         rb = GetComponent<Rigidbody2D>();
         PipeM = FindAnyObjectByType<PipeManager>();
-        CapsuleHalfWidth = new Vector3(GetComponent<CapsuleCollider2D>().size.x / 2f, 0);
+        CapsuleHalfWidth = new Vector3(GetComponent<CapsuleCollider2D>().size.x / 4f, 0);
     }
 
     // Update is called once per frame
@@ -46,26 +41,41 @@ public class FlappyBehaviour : MonoBehaviour
     {
         transform.rotation = Quaternion.Euler(0, 0, rb.velocity.y * RotationSpeed);
 
-        Vector2 ray135 = Vector2.up /*+ Vector2.left*/;
-        Vector2 ray225 = Vector2.down/* + Vector2.left*/;
+        Vector2 rayTop = Vector2.up + Vector2.left;
+        Vector2 rayBot = Vector2.down + Vector2.left;
 
-        Vector3 pos = transform.position - CapsuleHalfWidth;
+        Vector3 pos = transform.position + CapsuleHalfWidth;
 
-        Debug.DrawRay(pos, ray135 * RayLength);
-        Debug.DrawRay(pos, ray225 * RayLength);
+        Debug.DrawRay(pos, rayTop * RayLength, Color.blue);
+        Debug.DrawRay(pos, rayBot * RayLength, Color.blue);
 
-        RaycastHit2D hit135 = Physics2D.Raycast(pos, ray135, RayLength, DeathLayers.value);
-        RaycastHit2D hit225 = Physics2D.Raycast(pos, ray225, RayLength, DeathLayers.value);
+        RaycastHit2D hitTop = Physics2D.Raycast(pos, rayTop, RayLength, DeathLayers.value);
+        RaycastHit2D hitBot = Physics2D.Raycast(pos, rayBot, RayLength, DeathLayers.value);
 
-        if (hit135.collider != null)
-            BackRayHitPos.x = hit135.point.y;
-        else
-            BackRayHitPos.x = 0;
-        
-        if (hit225.collider != null)
-            BackRayHitPos.y = hit225.point.y;
-        else
-            BackRayHitPos.y = 0;
+        RayHitPos.x = float.NaN;
+        RayHitPos.y = float.NaN;
+
+        PipeBehaviour pipe;
+
+        if (hitTop.collider != null)
+        {
+            pipe = hitTop.transform.GetComponentInParent<PipeBehaviour>();
+
+            if (pipe != null)
+                RayHitPos.x = pipe.TopPipeHeight.transform.position.y;
+            else
+                RayHitPos.x = hitTop.point.y;
+        }
+
+        if (hitBot.collider != null)
+        {
+            pipe = hitBot.transform.GetComponentInParent<PipeBehaviour>();
+
+            if (pipe != null)
+                RayHitPos.y = pipe.BottomPipeHeight.transform.position.y;
+            else
+                RayHitPos.y = hitBot.point.y;
+        }
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
@@ -121,21 +131,18 @@ public class FlappyBehaviour : MonoBehaviour
         float WheightedSum =
             (TopPipeDist * Individual.TopPipeWheight) +
             (BottomPipeDist * Individual.BottomPipeWheight) +
-            //(BirdHeight * Individual.BirdHeightWheight) +
             Individual.Bias;
 
-        if (BackRayHitPos.x != 0)
+        if (!float.IsNaN(RayHitPos.x))
         {
-            float TopSafeGuard = Mathf.Abs(BirdHeight - BackRayHitPos.x);
-            //float TopSafeGuard = BackRayHitPos.x;
-            WheightedSum += TopSafeGuard * Individual.BackRay.x;
+            float TopSafeGuard = Mathf.Abs(BirdHeight - RayHitPos.x);
+            WheightedSum += TopSafeGuard * Individual.RayWeight.x;
         }
 
-        if (BackRayHitPos.y != 0)
+        if (!float.IsNaN(RayHitPos.y))
         {
-            float BottomSafeGuard = Mathf.Abs(BirdHeight - BackRayHitPos.y);
-            //float BottomSafeGuard = BackRayHitPos.y;
-            WheightedSum += BottomSafeGuard * Individual.BackRay.y;
+            float BottomSafeGuard = Mathf.Abs(BirdHeight - RayHitPos.y);
+            WheightedSum += BottomSafeGuard * Individual.RayWeight.y;
         }
 
         float result = (float)Math.Tanh(WheightedSum);

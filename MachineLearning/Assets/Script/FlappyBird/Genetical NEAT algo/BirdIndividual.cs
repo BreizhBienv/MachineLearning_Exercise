@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class BirdIndividual
@@ -9,11 +7,10 @@ public class BirdIndividual
 
     public float TopPipeWheight; //Weight of distance between top pipe and bird
     public float BottomPipeWheight; //Weight of distance between bottom pipe and bird
-    public float BirdHeightWheight;
 
     //Raycast send backward to see if safe to jump or fall
     //x is toward top and y toward bottom
-    public Vector2 BackRay;
+    public Vector2 RayWeight;
 
     public float Bias;
 
@@ -22,29 +19,27 @@ public class BirdIndividual
 
     public BirdIndividual()
     {
-        RangeOfRandom = BirdPopulation.Instance.RangeOfRandom;
-        RangeRandBias = BirdPopulation.Instance.RangeRandBias;
+        RangeOfRandom       = BirdPopulation.Instance.RangeOfRandom;
+        RangeRandBias       = BirdPopulation.Instance.RangeRandBias;
 
         TopPipeWheight      = Random.Range(-RangeOfRandom, RangeOfRandom);
         BottomPipeWheight   = Random.Range(-RangeOfRandom, RangeOfRandom);
-        BirdHeightWheight   = Random.Range(-RangeOfRandom, RangeOfRandom);
 
-        BackRay.x           = Random.Range(-RangeOfRandom, RangeOfRandom);
-        BackRay.y           = Random.Range(-RangeOfRandom, RangeOfRandom);
+        RayWeight.x         = Random.Range(-RangeOfRandom, RangeOfRandom);
+        RayWeight.y         = Random.Range(-RangeOfRandom, RangeOfRandom);
 
         Bias                = Random.Range(-RangeRandBias, RangeRandBias);
     }
 
-    public BirdIndividual(float pTopPipe, float pBottomPipe, float pBirdHeight, Vector2 pBackRay, float pBiasP)
+    public BirdIndividual(float pTopPipe, float pBottomPipe, Vector2 pRayWeight, float pBiasP)
     {
         RangeOfRandom = BirdPopulation.Instance.RangeOfRandom;
         RangeRandBias = BirdPopulation.Instance.RangeRandBias;
 
         TopPipeWheight      = pTopPipe;
         BottomPipeWheight   = pBottomPipe;
-        BirdHeightWheight   = pBirdHeight;
 
-        BackRay             = pBackRay;
+        RayWeight           = pRayWeight;
 
         Bias                = pBiasP;
     }
@@ -88,8 +83,7 @@ public class BirdIndividual
         return new BirdIndividual(
             CrossGenes(TopPipeWheight, pOther.TopPipeWheight),
             CrossGenes(BottomPipeWheight, pOther.BottomPipeWheight),
-            CrossGenes(BirdHeightWheight, pOther.BirdHeightWheight),
-            new Vector2(CrossGenes(BackRay.x, pOther.BackRay.x), CrossGenes(BackRay.y, pOther.BackRay.y)),
+            new Vector2(CrossGenes(RayWeight.x, pOther.RayWeight.x), CrossGenes(RayWeight.y, pOther.RayWeight.y)),
             bias);
     }
 
