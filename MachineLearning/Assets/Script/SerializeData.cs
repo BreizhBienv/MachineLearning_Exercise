@@ -39,9 +39,8 @@ public class SerializeData
             SaveData data = (SaveData)bf.Deserialize(file);
 
             ToLoad = new BirdIndividual(
-                data.TopPipeWheight, data.BottomPipeWheight,
-                new Vector2(data.RayWeightX, data.RayWeightY),
-                data.Bias);
+                data.TopHeightW, data.BotHeightW,
+                data.LastDistW, data.NextDistW);
 
             Gen = data.Generation;
 
@@ -60,13 +59,11 @@ public class SerializeData
 [Serializable]
 public class SaveData
 {
-    public float TopPipeWheight;
-    public float BottomPipeWheight;
-    
-    public float RayWeightX;
-    public float RayWeightY;
+    public float TopHeightW;
+    public float BotHeightW;
 
-    public float Bias;
+    public float LastDistW;
+    public float NextDistW;
 
     public int Generation;
 
@@ -74,12 +71,10 @@ public class SaveData
 
     public SaveData(BirdIndividual ToSave, int Gen, int HighS)
     {
-        TopPipeWheight = ToSave.TopPipeWheight;
-        BottomPipeWheight = ToSave.BottomPipeWheight;
-
-        RayWeightX = ToSave.RayWeight.x;
-        RayWeightY = ToSave.RayWeight.y;
-        Bias = ToSave.Bias;
+        TopHeightW = ToSave.TopHeightW;
+        BotHeightW = ToSave.BotHeightW;
+        LastDistW = ToSave.LastDistW;
+        NextDistW = ToSave.NextDistW;
 
         Generation = Gen;
 

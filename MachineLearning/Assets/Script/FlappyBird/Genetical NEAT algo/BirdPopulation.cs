@@ -23,7 +23,6 @@ public class BirdPopulation : MonoBehaviour
 
     [Header("Algo param")]
     [SerializeField] public float RangeOfRandom = 500f;
-    [SerializeField] public float RangeRandBias = 500f;
 
     [SerializeField] private GameObject BirdPrefab;
 
@@ -163,8 +162,8 @@ public class BirdPopulation : MonoBehaviour
 
         for (int i = 0; i < MaxPopulation; ++i)
             Population.Add(new BirdIndividual(
-                baseCopie.TopPipeWheight, baseCopie.BottomPipeWheight,
-                baseCopie.RayWeight, baseCopie.Bias));
+                baseCopie.TopHeightW, baseCopie.BotHeightW,
+                baseCopie.LastDistW, baseCopie.NextDistW));
     }
 
     private void NewGen()

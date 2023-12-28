@@ -5,43 +5,34 @@ public class BirdIndividual
     //Time alive
     public float Fitness;
 
-    public float TopPipeWheight; //Weight of distance between top pipe and bird
-    public float BottomPipeWheight; //Weight of distance between bottom pipe and bird
+    public float TopHeightW;    //Weight top pipe/bird distance on y-axis
+    public float BotHeightW;    //Weight bottom pipe/bird distance on y-axis
 
-    //Raycast send backward to see if safe to jump or fall
-    //x is toward top and y toward bottom
-    public Vector2 RayWeight;
-
-    public float Bias;
+    public float LastDistW;     //Weight of last pipe/bird distance on x-axis 
+    public float NextDistW;     //Weight of next pipe/bird distance on x-axis
 
     float RangeOfRandom;
-    float RangeRandBias;
 
     public BirdIndividual()
     {
-        RangeOfRandom       = BirdPopulation.Instance.RangeOfRandom;
-        RangeRandBias       = BirdPopulation.Instance.RangeRandBias;
+        RangeOfRandom = BirdPopulation.Instance.RangeOfRandom;
 
-        TopPipeWheight      = Random.Range(-RangeOfRandom, RangeOfRandom);
-        BottomPipeWheight   = Random.Range(-RangeOfRandom, RangeOfRandom);
+        TopHeightW = Random.Range(-RangeOfRandom, RangeOfRandom);
+        BotHeightW = Random.Range(-RangeOfRandom, RangeOfRandom);
 
-        RayWeight.x         = Random.Range(-RangeOfRandom, RangeOfRandom);
-        RayWeight.y         = Random.Range(-RangeOfRandom, RangeOfRandom);
-
-        Bias                = Random.Range(-RangeRandBias, RangeRandBias);
+        LastDistW = Random.Range(-RangeOfRandom, RangeOfRandom);
+        NextDistW = Random.Range(-RangeOfRandom, RangeOfRandom);
     }
 
-    public BirdIndividual(float pTopPipe, float pBottomPipe, Vector2 pRayWeight, float pBiasP)
+    public BirdIndividual(float pTopPipe, float pBotPipe, float pLastDist, float pNextDist)
     {
         RangeOfRandom = BirdPopulation.Instance.RangeOfRandom;
-        RangeRandBias = BirdPopulation.Instance.RangeRandBias;
 
-        TopPipeWheight      = pTopPipe;
-        BottomPipeWheight   = pBottomPipe;
+        TopHeightW = pTopPipe;
+        BotHeightW = pBotPipe;
 
-        RayWeight           = pRayWeight;
-
-        Bias                = pBiasP;
+        LastDistW = pLastDist;
+        NextDistW = pNextDist;
     }
 
     private float CrossGenes(float pParent1, float pParent2)
@@ -65,26 +56,12 @@ public class BirdIndividual
 
     public BirdIndividual Mate(BirdIndividual pOther)
     {
-        float proba = Random.Range(0, 100);
-
-        //Mutation to keep diversity if proba > 90f 
-        float bias = Random.Range(-RangeRandBias, RangeRandBias);
-
-        if (proba < 45f)    //Take self gene
-        {
-            bias = Bias;
-        }
-        else if (45f <= proba && proba < 90f)   //Take other gene
-        {
-            bias = pOther.Bias;
-        }
-
         // create new Individual(offspring) using  
         return new BirdIndividual(
-            CrossGenes(TopPipeWheight, pOther.TopPipeWheight),
-            CrossGenes(BottomPipeWheight, pOther.BottomPipeWheight),
-            new Vector2(CrossGenes(RayWeight.x, pOther.RayWeight.x), CrossGenes(RayWeight.y, pOther.RayWeight.y)),
-            bias);
+            CrossGenes(TopHeightW, pOther.TopHeightW),
+            CrossGenes(BotHeightW, pOther.BotHeightW),
+            CrossGenes(LastDistW, pOther.LastDistW),
+            CrossGenes(NextDistW, pOther.NextDistW));
     }
 
     public static bool operator <(BirdIndividual lhs, BirdIndividual rhs)

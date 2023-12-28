@@ -272,7 +272,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6973307097398309685}
   m_Layer: 6
-  m_Name: Height
+  m_Name: BotHeight
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -303,7 +303,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5419311512666387513}
   m_Layer: 6
-  m_Name: Height
+  m_Name: TopHeight
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -373,7 +373,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Speed: 0.75
   TopPipeHeight: {fileID: 3503115869502871479}
-  BottomPipeHeight: {fileID: 3004920382858119549}
+  BotPipeHeight: {fileID: 3004920382858119549}
 --- !u!1 &9004800439147184739
 GameObject:
   m_ObjectHideFlags: 0
