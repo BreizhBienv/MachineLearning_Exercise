@@ -39,11 +39,14 @@ public class FlappyBehaviour : MonoBehaviour
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if ((DeathLayers.value & (1 << collision.gameObject.layer)) > 0)
-        {
-            GameManager.Instance.RemoveAlive(gameObject);
-            GameManager.Instance.GameOver();
-            Destroy(gameObject);
-        }
+            Kill();
+    }
+
+    public void Kill()
+    {
+        GameManager.Instance.RemoveAlive(gameObject);
+        GameManager.Instance.GameOver();
+        Destroy(gameObject);
     }
 
     void ComputeJump()

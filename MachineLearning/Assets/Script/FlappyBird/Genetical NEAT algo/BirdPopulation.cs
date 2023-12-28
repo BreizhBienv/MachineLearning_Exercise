@@ -22,15 +22,14 @@ public class BirdPopulation : MonoBehaviour
     [SerializeField] private  Scrollbar     ScrollBarM;
 
     [Header("Algo param")]
-    [SerializeField] public float RangeOfRandom = 500f;
-
+    [SerializeField] public float RangeOfRandom = 10f;
     [SerializeField] private GameObject BirdPrefab;
 
     int MaxPopulation = 10;
     int TopSurvivorPercent = 10;
     int TopMatingPercent = 50;
 
-    [NonSerialized] public int CurrentGen = -1;
+    [NonSerialized] public int CurrentGen = 0;
 
     List<BirdIndividual> Population = new List<BirdIndividual>();
 
@@ -114,7 +113,7 @@ public class BirdPopulation : MonoBehaviour
     public void ResetSpecies_Button()
     {
         Population.Clear();
-        CurrentGen = -1;
+        CurrentGen = 0;
         GameManager.Instance.ResetScores();
     }
 

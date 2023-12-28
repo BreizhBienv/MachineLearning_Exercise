@@ -58,7 +58,7 @@ public class PipeManager : MonoBehaviour
 
         Pipes.Add(newPipes);
 
-        Destroy(newPipes, SecondsToDestroy);
+        Destroy(newPipes.gameObject, SecondsToDestroy);
     }
 
     public void OnResetGame()

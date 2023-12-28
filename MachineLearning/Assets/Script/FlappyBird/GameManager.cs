@@ -42,6 +42,11 @@ public class GameManager : MonoBehaviour
         ScoreTxt.text = Score.ToString();
     }
 
+    private void Update()
+    {
+        KillPopulation();
+    }
+
     public void GameOver()
     {
         if (BirdsAlive.Count > 0)
@@ -64,6 +69,18 @@ public class GameManager : MonoBehaviour
         ScoreTxt.text = Score.ToString();
 
         PipeSpawner.OnResetGame();
+    }
+
+    private void KillPopulation()
+    {
+        if (Input.GetKeyDown(KeyCode.K))
+        {
+            foreach (GameObject obj in BirdsAlive)
+                Destroy(obj);
+
+            BirdsAlive.Clear();
+            GameOver();
+        }
     }
 
     public void RemoveAlive(GameObject obj)
