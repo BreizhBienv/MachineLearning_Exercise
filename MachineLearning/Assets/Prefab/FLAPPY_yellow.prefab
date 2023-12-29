@@ -188,3 +188,4 @@ MonoBehaviour:
     m_Bits: 64
   UpwardVelocity: 1.75
   RotationSpeed: 10
+  RayLength: 0.15

@@ -1,10 +1,12 @@
 using System;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class PipeManager : MonoBehaviour
 {
-    [NonSerialized] public List<GameObject> Pipes;
+    [NonSerialized] public List<PipeBehaviour> Pipes;
+    [NonSerialized] public PipeBehaviour LastPipe;
 
     [SerializeField] private GameObject PipesPrefab;
 
@@ -15,15 +17,25 @@ public class PipeManager : MonoBehaviour
     [SerializeField] private float YTopClamp;
     [SerializeField] private float YBottomClamp;
 
-    [SerializeField] private float SecondsToDestroy = 10f;
+    private float SecondsToDestroy = 10f;
+
+    private float HalfPipeWidth;
 
     private void Start()
     {
-        Pipes = new List<GameObject>();
+        Pipes = new List<PipeBehaviour>();
+        HalfPipeWidth = PipesPrefab.GetComponentInChildren<BoxCollider2D>().size.x / 2f;
+        LastPipe = null;
     }
 
     // Update is called once per frame
     void Update()
+    {
+        PassedPipe();
+        AdvanceSpawnPipeDelay();
+    }
+
+    void AdvanceSpawnPipeDelay()
     {
         Timer += Time.deltaTime;
 
@@ -42,11 +54,11 @@ public class PipeManager : MonoBehaviour
 
         Vector3 spawnPos = transform.position + Vector3.up * yPos;
 
-        GameObject newPipes = Instantiate(PipesPrefab, spawnPos, Quaternion.identity);
+        PipeBehaviour newPipes = Instantiate(PipesPrefab, spawnPos, Quaternion.identity).GetComponent<PipeBehaviour>();
 
         Pipes.Add(newPipes);
 
-        Destroy(newPipes, SecondsToDestroy);
+        Destroy(newPipes.gameObject, SecondsToDestroy);
     }
 
     public void OnResetGame()
@@ -62,6 +74,20 @@ public class PipeManager : MonoBehaviour
 
     public void PassedPipe()
     {
-        Pipes.RemoveAt(0);
+        FlappyBehaviour flappy = FindAnyObjectByType<FlappyBehaviour>();
+
+        if (flappy == null || Pipes.Count <= 0)
+            return;
+
+        Debug.DrawLine(Pipes[0].transform.position + Vector3.up * 0.3f + Vector3.right * HalfPipeWidth,
+                Pipes[0].transform.position + Vector3.down * 0.3f + Vector3.right * HalfPipeWidth,
+                Color.red);
+
+        PipeBehaviour pipe = Pipes[0].GetComponent<PipeBehaviour>();
+        if (flappy.transform.position.x > (pipe.transform.position.x + HalfPipeWidth))
+        {
+            LastPipe = pipe;
+            Pipes.RemoveAt(0); 
+        }
     }
 }

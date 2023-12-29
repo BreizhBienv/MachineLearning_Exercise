@@ -1,4 +1,4 @@
-using System.Collections;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;
@@ -9,28 +9,31 @@ public class BirdPopulation : MonoBehaviour
 {
     public static BirdPopulation Instance { get; private set; }
 
-    [Header("Population")]
+    [Header("UI/Population")]
     [SerializeField] private TMP_InputField InputMaxPop;
+    [SerializeField] private Toggle         NewGenToggle;
 
-    [Header("Survivor")]
+    [Header("UI/Survivor")]
     [SerializeField] private TMP_InputField InputS;
     [SerializeField] private Scrollbar      ScrollBarS;
 
-    [Header("Mating")]
+    [Header("UI/Mating")]
     [SerializeField] private TMP_InputField InputM;
     [SerializeField] private  Scrollbar     ScrollBarM;
 
-    [SerializeField] public float RangeOfRandom = 500f;
-
+    [Header("Algo param")]
+    [SerializeField] public float RangeOfRandom = 10f;
     [SerializeField] private GameObject BirdPrefab;
 
     int MaxPopulation = 10;
     int TopSurvivorPercent = 10;
     int TopMatingPercent = 50;
 
-    int CurrentGen = -1;
+    [NonSerialized] public int CurrentGen = 0;
 
     List<BirdIndividual> Population = new List<BirdIndividual>();
+
+    bool IsGeneratingNewGen = true;
 
     private void Awake()
     {
@@ -102,6 +105,18 @@ public class BirdPopulation : MonoBehaviour
         InputM.text = valueI.ToString();
     }
 
+    public void ChangeValue_NewGen_Toggle()
+    {
+        IsGeneratingNewGen = NewGenToggle.isOn;
+    }
+
+    public void ResetSpecies_Button()
+    {
+        Population.Clear();
+        CurrentGen = 0;
+        GameManager.Instance.ResetScores();
+    }
+
     public void StartGame()
     {
         GenerateNewPopulation();
@@ -112,27 +127,48 @@ public class BirdPopulation : MonoBehaviour
 
     private void GenerateNewPopulation()
     {
+        int addToGen = 0;
+
         if (Population.Count <= 0)
-            ProgenitorGen();
-        else
+        {
+            NewSpecies(null);
+            addToGen++;
+        }
+        else if (IsGeneratingNewGen)
+        {
             NewGen();
+            addToGen++;
+        }
+
+        CurrentGen += addToGen;
+        GameManager.Instance.UpdateGen(CurrentGen);
 
         InstantiatePopulation();
-        CurrentGen++;
-        GameManager.Instance.UpdateGen(CurrentGen);
         GameManager.Instance.UpdateAlive();
     }
 
-    private void ProgenitorGen()
+    public void NewSpecies(BirdIndividual baseCopie)
     {
+        Population.Clear();
+
+        if (baseCopie == null)
+        {
+            for (int i = 0; i < MaxPopulation; ++i)
+                Population.Add(new BirdIndividual());
+
+            return;
+        }
+
         for (int i = 0; i < MaxPopulation; ++i)
-            Population.Add(new BirdIndividual());
+            Population.Add(new BirdIndividual(
+                baseCopie.TopHeightW, baseCopie.BotHeightW,
+                baseCopie.LastDistW, baseCopie.NextDistW));
     }
 
     private void NewGen()
     {
         //Sort population by descending fitness
-        Population = Population.OrderByDescending(o => o.Fitness).ToList();
+        Population = GetSortedPopulation();
 
         List<BirdIndividual> newGen = new List<BirdIndividual>(MaxPopulation);
 
@@ -152,10 +188,10 @@ public class BirdPopulation : MonoBehaviour
         {
             int populationSample = (TopMatingPercent / 100) * MaxPopulation;
 
-            int r = Random.Range(0, populationSample);
+            int r = UnityEngine.Random.Range(0, populationSample);
             BirdIndividual parent1 = Population[r];
 
-            r = Random.Range(0, populationSample);
+            r = UnityEngine.Random.Range(0, populationSample);
             BirdIndividual parent2 = Population[r];
 
             BirdIndividual offspring = parent1.Mate(parent2);
@@ -164,6 +200,11 @@ public class BirdPopulation : MonoBehaviour
 
         Population.Clear();
         Population = newGen;
+    }
+
+    public List<BirdIndividual> GetSortedPopulation()
+    {
+        return Population.OrderByDescending(o => o.Fitness).ToList();
     }
 
     private void InstantiatePopulation()
@@ -175,6 +216,5 @@ public class BirdPopulation : MonoBehaviour
             GameManager.Instance.BirdsAlive.Add(go);
         }
     }
-
     #endregion
 }

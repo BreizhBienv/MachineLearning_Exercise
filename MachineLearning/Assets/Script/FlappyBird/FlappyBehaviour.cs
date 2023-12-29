@@ -1,8 +1,4 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Runtime.InteropServices.WindowsRuntime;
-using System.Security.Cryptography;
 using UnityEngine;
 
 public class FlappyBehaviour : MonoBehaviour
@@ -16,8 +12,10 @@ public class FlappyBehaviour : MonoBehaviour
 
     private PipeManager PipeM;
 
+    #region NEAT
     public BirdIndividual Individual;
-
+    #endregion
+    
     private void Start()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -41,11 +39,14 @@ public class FlappyBehaviour : MonoBehaviour
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if ((DeathLayers.value & (1 << collision.gameObject.layer)) > 0)
-        {
-            GameManager.Instance.RemoveAlive(gameObject);
-            GameManager.Instance.GameOver();
-            Destroy(gameObject);
-        }
+            Kill();
+    }
+
+    public void Kill()
+    {
+        GameManager.Instance.RemoveAlive(gameObject);
+        GameManager.Instance.GameOver();
+        Destroy(gameObject);
     }
 
     void ComputeJump()
@@ -69,6 +70,31 @@ public class FlappyBehaviour : MonoBehaviour
         Individual.Fitness += Time.deltaTime;
     }
 
+    private float CalculateHeightWeightSum(PipeBehaviour pSumTarget)
+    {
+        float topHeight     = pSumTarget.TopPipeHeight.transform.position.y;
+        float botHeight     = pSumTarget.BotPipeHeight.transform.position.y;
+
+        float birdHeight    = transform.position.y;
+        float topDist       = Mathf.Abs(topHeight - birdHeight);
+        float botDist       = Mathf.Abs(botHeight - birdHeight);
+
+        return (topDist * Individual.TopHeightW) +
+            (botDist * Individual.BotHeightW);
+    }
+
+    private float CalculateDistanceWeight(PipeBehaviour pSumTarget, float pWeight)
+    {
+        float xPosPipe = pSumTarget.transform.position.x;
+
+        float xPosBird = transform.position.x;
+        float xDist = Mathf.Abs(xPosPipe - xPosBird);
+
+        float invValue = 1f / xDist;
+
+        return invValue * pWeight;
+    }
+
     private bool CanJump()
     {
         if (PipeM.Pipes.Count <= 0)
@@ -79,25 +105,24 @@ public class FlappyBehaviour : MonoBehaviour
             return false;
         }
 
-        GameObject nextPipe = PipeM.Pipes[0];
+        PipeBehaviour nextPipe = PipeM.Pipes[0];
+        PipeBehaviour lastPipe = PipeM.LastPipe;
 
-        float TopPipeHeight     = nextPipe.GetComponent<PipeBehaviour>().TopPipeHeight.transform.position.y;
-        float BottomPipeHeight  = nextPipe.GetComponent<PipeBehaviour>().BottomPipeHeight.transform.position.y;
-        
-        float BirdHeight        = transform.position.y;
-        float TopPipeDist       = Mathf.Abs(BirdHeight - TopPipeHeight);
-        float BottomPipeDist    = Mathf.Abs(BirdHeight - BottomPipeHeight);
+        float weightSum = CalculateHeightWeightSum(nextPipe);
 
-        float WheightedSum =
-            (TopPipeDist * Individual.TopPipeWheight) +
-            (BottomPipeDist * Individual.BottomPipeWheight) +
-            (BirdHeight * Individual.BirdHeightWheight) +
-            Individual.Bias;
+        if (lastPipe != null)
+        {
+            float lastWeightSum = CalculateHeightWeightSum(lastPipe);
 
-        float result = (float)Math.Tanh(WheightedSum);
-        bool CanJump = result > 0.5f ? true : false;
+            float nextDistW = CalculateDistanceWeight(nextPipe, Individual.NextDistW);
+            float lastDistW = CalculateDistanceWeight(lastPipe, Individual.LastDistW);
 
-        return CanJump;
+            weightSum = (weightSum * nextDistW) + (lastWeightSum * lastDistW);
+        }
+
+        float result = (float)Math.Tanh(weightSum);
+
+        return result > 0f ? true : false;
     }
     #endregion
 }

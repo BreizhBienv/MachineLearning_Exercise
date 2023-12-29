@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class PipeBehaviour : MonoBehaviour
@@ -7,7 +5,7 @@ public class PipeBehaviour : MonoBehaviour
     [SerializeField] private float Speed = 1.5f;
 
     [SerializeField] public GameObject TopPipeHeight;
-    [SerializeField] public GameObject BottomPipeHeight;
+    [SerializeField] public GameObject BotPipeHeight;
 
     // Update is called once per frame
     void Update()
