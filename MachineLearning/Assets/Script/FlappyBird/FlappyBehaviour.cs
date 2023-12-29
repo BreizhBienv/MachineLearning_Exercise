@@ -108,7 +108,7 @@ public class FlappyBehaviour : MonoBehaviour
         PipeBehaviour nextPipe = PipeM.Pipes[0];
         PipeBehaviour lastPipe = PipeM.LastPipe;
 
-        float nextWeightSum = CalculateHeightWeightSum(nextPipe);
+        float weightSum = CalculateHeightWeightSum(nextPipe);
 
         if (lastPipe != null)
         {
@@ -117,10 +117,10 @@ public class FlappyBehaviour : MonoBehaviour
             float nextDistW = CalculateDistanceWeight(nextPipe, Individual.NextDistW);
             float lastDistW = CalculateDistanceWeight(lastPipe, Individual.LastDistW);
 
-            nextWeightSum = (nextWeightSum * nextDistW) + (lastWeightSum * lastDistW);
+            weightSum = (weightSum * nextDistW) + (lastWeightSum * lastDistW);
         }
 
-        float result = (float)Math.Tanh(nextWeightSum);
+        float result = (float)Math.Tanh(weightSum);
 
         return result > 0f ? true : false;
     }
