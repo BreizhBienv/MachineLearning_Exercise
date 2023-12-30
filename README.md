@@ -4,6 +4,8 @@ The goal of this exercise is to learn the ins and outs of machine learning, and 
 The exercise present itself in two step: <br>
 > Step 1 - XOR Training <br>
 > Step 2 - FlappyBird <br>
+
+This project was done on Unity.
 <br>
 
 
