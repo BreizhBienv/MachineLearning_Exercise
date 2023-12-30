@@ -6,6 +6,7 @@ The exercise present itself in two step: <br>
 > Step 2 - FlappyBird <br>
 <br>
 
+Youtube link: https://www.youtube.com/watch?v=KEGq7vo6qQA
 
 ### XOR Training
 ***
