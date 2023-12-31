@@ -35,7 +35,8 @@ To check which AI was the closest to the set of targets, I calculated the averag
 ***
 #### How the AI works
 Now that I discovered a little bit of what genetic algo could do, it was time to try implementing it in a game. And the game I chose was Flappy Bird.<br>
-This time, to know wich AI was better, I used as fitness how long the AI has survived.<br>
+I based my AI on the NEAT algorithm, wich means I multiply inputs by weights and add them into a sum before passing it into an activation function.<br>
+To know wich AI was better, I used, as fitness, how long the AI has survived.<br>
 As for the genom shared with the offprings, I used wheights: <br>
 
      float TopHeightW;     //Weight of distance between bird and top pipe on y-axis
@@ -44,7 +45,6 @@ As for the genom shared with the offprings, I used wheights: <br>
      float LastDistW;      //Weight of distance between bird and last pipe x-axis 
      float NextDistW;      //Weight of distance between bird and next pipe x-axis 
 
-Those weights are used to give priority to values on weither or not the bird should flap. <br>
 `TopHeightW` and `BotHeightW` are used to maintain the bird height to pass a target pipe.<br>
 `LastDistW` and `NextDistW` are used to decide wich of the last or next pipe the bird should the bird maintain it's height.<br>
 <br>
@@ -62,7 +62,7 @@ As an example, to maintain height, I calculate the distance between the bird and
              (botDist * Individual.BotHeightW);
      }
 
-This sum is then passed trough the TanH function (wich, oversimplified, clamp between -1 and 1), and if the value returned is greater than 0, the bird flap.<br>
+This sum is then passed trough the activation function TanH function, and if the value returned is greater than 0, the bird flap.<br>
 
      float result = (float)Math.Tanh(weightSum);
      return result > 0f ? true : false;
