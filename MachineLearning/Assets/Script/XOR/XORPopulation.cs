@@ -2,9 +2,9 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class Population : MonoBehaviour
+public class XORPopulation : MonoBehaviour
 {
-    public static Population Instance { get; private set; }
+    public static XORPopulation Instance { get; private set; }
 
     public readonly float[] Target = 
     {
@@ -16,7 +16,7 @@ public class Population : MonoBehaviour
 
     int currentGeneration = -1;
 
-    List<Individual> population;
+    List<XORIndividual> population;
 
     [Range(0.0f, 500.0f)]
     public float RandomRange = 500.0f;
@@ -44,7 +44,7 @@ public class Population : MonoBehaviour
 
     private void Start()
     {
-        population = new List<Individual>(MaxPopulation);
+        population = new List<XORIndividual>(MaxPopulation);
 
         ProgenitorGeneration();
     }
@@ -52,7 +52,7 @@ public class Population : MonoBehaviour
     public void ProgenitorGeneration()
     {
         for (int i = 0; i < MaxPopulation; ++i)
-            population.Add(new Individual());
+            population.Add(new XORIndividual());
 
         //Sort population by ascending fitness
         population = population.OrderBy(o => o.Fitness).ToList();
@@ -61,7 +61,7 @@ public class Population : MonoBehaviour
 
     public void NewGeneration()
     {
-        List<Individual> newGen = new List<Individual>(MaxPopulation);
+        List<XORIndividual> newGen = new List<XORIndividual>(MaxPopulation);
 
         //Perform elitist selction from population
         //only top 'TopSurvivorPercent' of the population will be part of the new generation
@@ -77,12 +77,12 @@ public class Population : MonoBehaviour
             int populationSample = (TopMatingPercent / 100) * MaxPopulation;
 
             int r = Random.Range(0, populationSample);
-            Individual parent1 = population[r];
+            XORIndividual parent1 = population[r];
 
             r = Random.Range(0, populationSample);
-            Individual parent2 = population[r];
+            XORIndividual parent2 = population[r];
 
-            Individual offspring = parent1.Mate(parent2);
+            XORIndividual offspring = parent1.Mate(parent2);
             newGen.Add(offspring);
         }
 
@@ -93,7 +93,7 @@ public class Population : MonoBehaviour
         currentGeneration++;
     }
 
-    Individual GetChosenOne()
+    XORIndividual GetChosenOne()
     {
         return population[0];
     }

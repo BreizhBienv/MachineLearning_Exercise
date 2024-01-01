@@ -95,7 +95,7 @@ public class XORTrainer : MonoBehaviour
 
         //MLPNet.GenerateOutput(inputList);
         //outputLabel.text = MLPNet.GetOutputs()[0].ToString();
-        outputLabel.text = Population.Instance.GetOutput(input1, input2).ToString();
+        outputLabel.text = XORPopulation.Instance.GetOutput(input1, input2).ToString();
 
         Debug.Log("Network output generated!");
     }
@@ -122,7 +122,7 @@ public class XORTrainer : MonoBehaviour
                 //outputList.Clear();
                 //outputList.Add(refOutputs[i]);
                 //MLPNet.LearnPattern(inputList, outputList);
-                Population.Instance.NewGeneration();
+                XORPopulation.Instance.NewGeneration();
             }
         }
         Debug.Log("Network trained " + nbIterations  + " times!");

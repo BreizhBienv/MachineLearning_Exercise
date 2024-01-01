@@ -188,4 +188,12 @@ MonoBehaviour:
     m_Bits: 64
   UpwardVelocity: 1.75
   RotationSpeed: 10
-  RayLength: 0.15
+  NeuralN:
+    NumInput: 6
+    NumOutput: 1
+    Bias: 0
+    NeuronsInLayers: 040000000500000002000000
+    LinkWeightRange: 10
+    Neat:
+      WeightMutationChance: 0.9
+      LayerMuationChance: 0.9

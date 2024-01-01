@@ -2,32 +2,32 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Individual
+public class XORIndividual
 {
     public float[] Chromosome = { 0.0f, 0.0f, 0.0f, 0.0f };
     public float Fitness;
 
-    public Individual()
+    public XORIndividual()
     {
         for (int i = 0; i < Chromosome.Length; ++i)
         {
             Chromosome[i] = Random.Range(
-                -Population.Instance.RandomRange,
-                Population.Instance.RandomRange);
+                -XORPopulation.Instance.RandomRange,
+                XORPopulation.Instance.RandomRange);
         }
 
         Fitness = CalculFitness();
     }
 
-    public Individual(float[] chromosome)
+    public XORIndividual(float[] chromosome)
     {
         Chromosome = chromosome;
         Fitness = CalculFitness();
     }
 
-    public Individual Mate(Individual Other)
+    public XORIndividual Mate(XORIndividual Other)
     {
-        float[] target = Population.Instance.Target;
+        float[] target = XORPopulation.Instance.Target;
         int len = target.Length;
 
         //Chromosome of offspring
@@ -49,20 +49,20 @@ public class Individual
             else if (0.90f <= proba)                    //Mutation to keep diversity
             {
                 childChromosome[i] = Random.Range(
-                    -Population.Instance.RandomRange,
-                    Population.Instance.RandomRange);
+                    -XORPopulation.Instance.RandomRange,
+                    XORPopulation.Instance.RandomRange);
             }
         }
 
         // create new Individual(offspring) using  
-        return new Individual(childChromosome);
+        return new XORIndividual(childChromosome);
     }
 
     float CalculFitness()
     {
         float value = 0.0f;
 
-        float[] target = Population.Instance.Target;
+        float[] target = XORPopulation.Instance.Target;
 
         for (int i = 0; i < target.Length; ++i)
         {
@@ -74,12 +74,12 @@ public class Individual
         return value / target.Length;
     }
 
-    public static bool operator <(Individual lhs, Individual rhs)
+    public static bool operator <(XORIndividual lhs, XORIndividual rhs)
     {
         return lhs.Fitness < rhs.Fitness;
     }
 
-    public static bool operator >(Individual lhs, Individual rhs)
+    public static bool operator >(XORIndividual lhs, XORIndividual rhs)
     {
         return lhs.Fitness > rhs.Fitness;
     }

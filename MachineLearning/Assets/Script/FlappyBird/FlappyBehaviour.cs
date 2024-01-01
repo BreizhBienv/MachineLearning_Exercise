@@ -14,12 +14,15 @@ public class FlappyBehaviour : MonoBehaviour
 
     #region NEAT
     public BirdIndividual Individual;
+    public NeuralNetwork NeuralN = new NeuralNetwork();
     #endregion
     
     private void Start()
     {
         rb = GetComponent<Rigidbody2D>();
         PipeM = FindAnyObjectByType<PipeManager>();
+
+        NeuralN.GenerateBlankNetwork();
     }
 
     // Update is called once per frame
@@ -107,6 +110,54 @@ public class FlappyBehaviour : MonoBehaviour
 
         PipeBehaviour nextPipe = PipeM.Pipes[0];
         PipeBehaviour lastPipe = PipeM.LastPipe;
+
+        //float[] inputs = new float[NeuralN.NumInput];
+
+        //float topHeight = nextPipe.TopPipeHeight.transform.position.y;
+        //float botHeight = nextPipe.BotPipeHeight.transform.position.y;
+
+        //float birdHeight = transform.position.y;
+        //float topDist = Mathf.Abs(topHeight - birdHeight);
+        //float botDist = Mathf.Abs(botHeight - birdHeight);
+
+        //inputs[0] = topDist;
+        //inputs[1] = botDist;
+        //inputs[2] = 0;
+        //inputs[3] = 0;
+        //inputs[4] = 0;
+        //inputs[5] = 0;
+
+        //if (lastPipe != null)
+        //{
+        //    float topHeightLast = lastPipe.TopPipeHeight.transform.position.y;
+        //    float botHeightLast = lastPipe.BotPipeHeight.transform.position.y;
+
+        //    float topDistLast = Mathf.Abs(topHeightLast - birdHeight);
+        //    float botDistLast = Mathf.Abs(botHeightLast - birdHeight);
+
+        //    inputs[2] = topDistLast;
+        //    inputs[3] = botDistLast;
+
+        //    float xPosPipe = nextPipe.transform.position.x;
+
+        //    float xPosBird = transform.position.x;
+        //    float xDist = Mathf.Abs(xPosPipe - xPosBird);
+
+        //    float invValue = 1f / xDist;
+
+        //    inputs[4] = invValue;
+
+        //    xPosPipe = lastPipe.transform.position.x;
+
+        //    xPosBird = transform.position.x;
+        //    xDist = Mathf.Abs(xPosPipe - xPosBird);
+
+        //    invValue = 1f / xDist;
+
+        //    inputs[5] = invValue;
+        //}
+
+        //double[] result = NeuralN.ComputeNetwork(inputs);
 
         float weightSum = CalculateHeightWeightSum(nextPipe);
 
