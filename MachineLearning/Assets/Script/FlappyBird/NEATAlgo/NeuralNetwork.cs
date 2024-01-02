@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using static Unity.Burst.Intrinsics.Arm;
 
 public enum NeuronType
 {
@@ -123,6 +124,11 @@ public class NeuralNetwork
         for (int i = 0; i < NumInput; ++i)
             lastLayer.Add(new Neuron(NeuronType.Input, ActivationFunction.TanH));
 
+        Neuron bias = new Neuron(NeuronType.Bias, ActivationFunction.TanH);
+        bias.OutputValue = Bias;
+
+        lastLayer.Add(bias);
+
         Genome.Add(new List<Neuron>(lastLayer));
         lastLayer.Clear();
 
@@ -232,7 +238,7 @@ public class NeuralNetwork
     private void TryMutateRandomLayer(List<List<Neuron>> pGenome)
     {
         float rand = UnityEngine.Random.Range(0f, 1f);
-        if (rand < LayerMuationChance)
+        if (rand > LayerMuationChance)
             return;
 
         int randLayer = UnityEngine.Random.Range(1, pGenome.Count() - 2);
@@ -254,20 +260,20 @@ public class NeuralNetwork
     {
         float rand = UnityEngine.Random.Range(0f, 1f);
 
-        if (rand < WeightMutationChance)
+        if (rand > WeightMutationChance)
             return;
 
-        foreach (List<Neuron> neuron in pGenome)
-        {
-            int randBis = UnityEngine.Random.Range(0, neuron.Count - 1);
-            if (neuron[randBis].Type == NeuronType.Output)
-                continue;
+        int randBis = UnityEngine.Random.Range(0, pGenome.Count - 1);
+        List<Neuron> neuron = pGenome[randBis];
 
-            List<Link> links = neuron[randBis].Links;
+        randBis = UnityEngine.Random.Range(0, neuron.Count - 1);
+        if (neuron[randBis].Type == NeuronType.Output || neuron[randBis].Type == NeuronType.Bias)
+            return;
+
+        List<Link> links = neuron[randBis].Links;
             
-            randBis = UnityEngine.Random.Range(0, links.Count - 1);
-            links[randBis].Weight = RngHelper.RandomInRange(LinkWeightRange);
-        }
+        randBis = UnityEngine.Random.Range(0, links.Count - 1);
+        links[randBis].Weight = RngHelper.RandomInRange(LinkWeightRange);
     }
     #endregion
 
