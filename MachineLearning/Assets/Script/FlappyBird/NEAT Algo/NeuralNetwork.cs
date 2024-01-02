@@ -173,7 +173,7 @@ public class NeuralNetwork
 
     private void RemoveNeuron(Neuron pNeuron, int layer)
     {
-        RemoveConnection(pNeuron, layer);
+        RemoveConnections(pNeuron, layer);
         Neurons[layer].Remove(pNeuron);
     }
 
