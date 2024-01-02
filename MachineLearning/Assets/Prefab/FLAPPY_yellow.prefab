@@ -193,6 +193,7 @@ MonoBehaviour:
     NumOutput: 1
     Bias: 0
     NeuronsInLayers: 040000000500000002000000
+    Fitness: 0
     LinkWeightRange: 10
     Neat:
       WeightMutationChance: 0.9

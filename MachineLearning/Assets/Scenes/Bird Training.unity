@@ -456,7 +456,13 @@ MonoBehaviour:
   InputM: {fileID: 29278139}
   ScrollBarM: {fileID: 1251413600}
   RangeOfRandom: 10
+  WeightMutationChance: 0.1
+  LayerMuationChance: 0.1
   BirdPrefab: {fileID: 4003533385302428095, guid: b889affd0c053154d862c9f6cae93e59, type: 3}
+  NumInput: 3
+  NumOutput: 1
+  Bias: 0
+  NeuronsInLayers: 030000000500000002000000
 --- !u!1 &63819248
 GameObject:
   m_ObjectHideFlags: 0
@@ -5615,7 +5621,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   PipesPrefab: {fileID: 8885669914071582176, guid: abf1ea5066cce584bb9f0c95a867546c, type: 3}
   SpawnDelay: 1.5
-  HeightRangeOffset: 0.4
+  HeightRangeOffset: 0.3
   YTopClamp: 0.69
   YBottomClamp: -0.52
 --- !u!4 &1719535727

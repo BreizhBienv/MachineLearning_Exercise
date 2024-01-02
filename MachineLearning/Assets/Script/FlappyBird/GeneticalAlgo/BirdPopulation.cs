@@ -22,8 +22,18 @@ public class BirdPopulation : MonoBehaviour
     [SerializeField] private  Scrollbar     ScrollBarM;
 
     [Header("Algo param")]
-    [SerializeField] public float RangeOfRandom = 10f;
-    [SerializeField] private GameObject BirdPrefab;
+    [SerializeField] public uint            RangeOfRandom = 10;
+    [Range(0.0f, 1.0f)]
+    [SerializeField] public float           WeightMutationChance;
+    [Range(0.0f, 1.0f)]
+    [SerializeField] public float           LayerMuationChance;
+    [SerializeField] private GameObject     BirdPrefab;
+    
+    [Header("Network params")]
+    [SerializeField] public uint            NumInput;
+    [SerializeField] uint                   NumOutput;
+    [SerializeField] int                    Bias;
+    [SerializeField] List<uint>             NeuronsInLayers = new List<uint>();
 
     int MaxPopulation = 10;
     int TopSurvivorPercent = 10;
@@ -31,7 +41,7 @@ public class BirdPopulation : MonoBehaviour
 
     [NonSerialized] public int CurrentGen = 0;
 
-    List<BirdIndividual> Population = new List<BirdIndividual>();
+    List<NeuralNetwork> Population = new List<NeuralNetwork>();
 
     bool IsGeneratingNewGen = true;
 
@@ -154,15 +164,15 @@ public class BirdPopulation : MonoBehaviour
         if (baseCopie == null)
         {
             for (int i = 0; i < MaxPopulation; ++i)
-                Population.Add(new BirdIndividual());
+                Population.Add(new NeuralNetwork(NumInput, NumOutput, Bias, NeuronsInLayers, RangeOfRandom));
 
             return;
         }
 
-        for (int i = 0; i < MaxPopulation; ++i)
-            Population.Add(new BirdIndividual(
-                baseCopie.TopHeightW, baseCopie.BotHeightW,
-                baseCopie.LastDistW, baseCopie.NextDistW));
+        //for (int i = 0; i < MaxPopulation; ++i)
+        //    Population.Add(new NeuralNetwork(
+        //        baseCopie.TopHeightW, baseCopie.BotHeightW,
+        //        baseCopie.LastDistW, baseCopie.NextDistW));
     }
 
     private void NewGen()
@@ -170,14 +180,14 @@ public class BirdPopulation : MonoBehaviour
         //Sort population by descending fitness
         Population = GetSortedPopulation();
 
-        List<BirdIndividual> newGen = new List<BirdIndividual>(MaxPopulation);
+        List<NeuralNetwork> newGen = new List<NeuralNetwork>(MaxPopulation);
 
         //Perform elitist selction from population
         //only top 'TopSurvivorPercent' of the population will be part of the new generation
         int s = (TopSurvivorPercent * MaxPopulation) / 100;
         for (int i = 0; i < s; ++i)
         {
-            BirdIndividual indiv = Population[i];
+            NeuralNetwork indiv = Population[i];
             indiv.Fitness = 0;
             newGen.Add(indiv);
         }
@@ -189,12 +199,12 @@ public class BirdPopulation : MonoBehaviour
             int populationSample = (TopMatingPercent / 100) * MaxPopulation;
 
             int r = UnityEngine.Random.Range(0, populationSample);
-            BirdIndividual parent1 = Population[r];
+            NeuralNetwork parent1 = Population[r];
 
             r = UnityEngine.Random.Range(0, populationSample);
-            BirdIndividual parent2 = Population[r];
+            NeuralNetwork parent2 = Population[r];
 
-            BirdIndividual offspring = parent1.Mate(parent2);
+            NeuralNetwork offspring = parent1.Mate(parent2);
             newGen.Add(offspring);
         }
 
@@ -202,7 +212,7 @@ public class BirdPopulation : MonoBehaviour
         Population = newGen;
     }
 
-    public List<BirdIndividual> GetSortedPopulation()
+    public List<NeuralNetwork> GetSortedPopulation()
     {
         return Population.OrderByDescending(o => o.Fitness).ToList();
     }
@@ -212,7 +222,7 @@ public class BirdPopulation : MonoBehaviour
         for (int i = 0; i < MaxPopulation; ++i)
         {
             GameObject go = Instantiate(BirdPrefab, (Vector3.up * 1.28f), Quaternion.identity);
-            go.GetComponent<FlappyBehaviour>().Individual = Population[i];
+            go.GetComponent<FlappyBehaviour>().NeuralN = Population[i];
             GameManager.Instance.BirdsAlive.Add(go);
         }
     }

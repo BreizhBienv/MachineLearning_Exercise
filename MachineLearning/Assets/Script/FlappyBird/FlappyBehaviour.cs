@@ -13,7 +13,6 @@ public class FlappyBehaviour : MonoBehaviour
     private PipeManager PipeM;
 
     #region NEAT
-    public BirdIndividual Individual;
     public NeuralNetwork NeuralN;
     #endregion
     
@@ -21,8 +20,6 @@ public class FlappyBehaviour : MonoBehaviour
     {
         rb = GetComponent<Rigidbody2D>();
         PipeM = FindAnyObjectByType<PipeManager>();
-
-        NeuralN.GenerateBlankNetwork();
     }
 
     // Update is called once per frame
@@ -67,10 +64,10 @@ public class FlappyBehaviour : MonoBehaviour
     #region NEAT
     private void UpdateFitness()
     {
-        if (Individual == null)
+        if (NeuralN == null)
             return;
 
-        Individual.Fitness += Time.deltaTime;
+        NeuralN.Fitness += Time.deltaTime;
     }
 
     private void CalculateHeightDistance(PipeBehaviour pSumTarget, out float oTopDist, out float oBotDist)
@@ -104,7 +101,6 @@ public class FlappyBehaviour : MonoBehaviour
         }
 
         return NEATWithLayer() > 0f ? true : false;
-        //return NEATWithoutLayer() > 0f ? true : false;
     }
 
     private double NEATWithLayer()
@@ -119,52 +115,23 @@ public class FlappyBehaviour : MonoBehaviour
 
         inputs[0] = topDist;
         inputs[1] = botDist;
-        inputs[2] = 0;
-        inputs[3] = 0;
-        inputs[4] = 0;
-        inputs[5] = 0;
+        inputs[2] = transform.position.y;
+        //inputs[3] = 0;
+        //inputs[4] = 0;
+        //inputs[5] = 0;
 
-        if (lastPipe != null)
-        {
-            CalculateHeightDistance(lastPipe, out topDist, out botDist);
+        //if (lastPipe != null)
+        //{
+        //    CalculateHeightDistance(lastPipe, out topDist, out botDist);
 
-            inputs[2] = topDist;
-            inputs[3] = botDist;
+        //    inputs[2] = topDist;
+        //    inputs[3] = botDist;
 
-            inputs[4] = CalculateInvHorizDist(nextPipe);
-            inputs[5] = CalculateInvHorizDist(lastPipe);
-        }
+        //    inputs[4] = CalculateInvHorizDist(nextPipe);
+        //    inputs[5] = CalculateInvHorizDist(lastPipe);
+        //}
 
         return NeuralN.ComputeNetwork(inputs)[0];
-    }
-
-    private double NEATWithoutLayer()
-    {
-        PipeBehaviour nextPipe = PipeM.Pipes[0];
-        PipeBehaviour lastPipe = PipeM.LastPipe;
-
-        float topDist, botDist;
-
-        CalculateHeightDistance(nextPipe, out topDist, out botDist);
-        float weightSum = 
-            (topDist * Individual.TopHeightW) +
-            (botDist * Individual.BotHeightW);
-
-
-        if (lastPipe != null)
-        {
-            CalculateHeightDistance(lastPipe, out topDist, out botDist);
-            float lastWeightSum = 
-                (topDist * Individual.TopHeightW) +
-                (botDist * Individual.BotHeightW);
-
-            float nextDistW = CalculateInvHorizDist(nextPipe) * Individual.NextDistW;
-            float lastDistW = CalculateInvHorizDist(lastPipe) * Individual.LastDistW;
-
-            weightSum = (weightSum * nextDistW) + (lastWeightSum * lastDistW);
-        }
-
-        return (float)Math.Tanh(weightSum);
     }
     #endregion
 }

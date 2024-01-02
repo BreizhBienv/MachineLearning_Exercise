@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class SerializeData
 {
-    static public void SaveGame(BirdIndividual ToSave, int Gen, int HighS)
+    static public void SaveGame(NeuralNetwork ToSave, int Gen, int HighS)
     {
         BinaryFormatter bf = new BinaryFormatter();
         FileStream file;
@@ -69,12 +69,12 @@ public class SaveData
 
     public int HighScore;
 
-    public SaveData(BirdIndividual ToSave, int Gen, int HighS)
+    public SaveData(NeuralNetwork ToSave, int Gen, int HighS)
     {
-        TopHeightW = ToSave.TopHeightW;
-        BotHeightW = ToSave.BotHeightW;
-        LastDistW = ToSave.LastDistW;
-        NextDistW = ToSave.NextDistW;
+        //TopHeightW = ToSave.TopHeightW;
+        //BotHeightW = ToSave.BotHeightW;
+        //LastDistW = ToSave.LastDistW;
+        //NextDistW = ToSave.NextDistW;
 
         Generation = Gen;
 
