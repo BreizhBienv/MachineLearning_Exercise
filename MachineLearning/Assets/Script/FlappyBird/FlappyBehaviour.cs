@@ -21,8 +21,6 @@ public class FlappyBehaviour : MonoBehaviour
     {
         rb = GetComponent<Rigidbody2D>();
         PipeM = FindAnyObjectByType<PipeManager>();
-
-        NeuralN.GenerateBlankNetwork();
     }
 
     // Update is called once per frame
@@ -73,29 +71,24 @@ public class FlappyBehaviour : MonoBehaviour
         Individual.Fitness += Time.deltaTime;
     }
 
-    private float CalculateHeightWeightSum(PipeBehaviour pSumTarget)
+    private void CalculateHeightDistance(PipeBehaviour pSumTarget, out float oTopDist, out float oBotDist)
     {
         float topHeight     = pSumTarget.TopPipeHeight.transform.position.y;
         float botHeight     = pSumTarget.BotPipeHeight.transform.position.y;
 
         float birdHeight    = transform.position.y;
-        float topDist       = Mathf.Abs(topHeight - birdHeight);
-        float botDist       = Mathf.Abs(botHeight - birdHeight);
-
-        return (topDist * Individual.TopHeightW) +
-            (botDist * Individual.BotHeightW);
+        oTopDist            = Mathf.Abs(topHeight - birdHeight);
+        oBotDist            = Mathf.Abs(botHeight - birdHeight);
     }
 
-    private float CalculateDistanceWeight(PipeBehaviour pSumTarget, float pWeight)
+    private float CalculateInvHorizDist(PipeBehaviour pSumTarget)
     {
         float xPosPipe = pSumTarget.transform.position.x;
 
         float xPosBird = transform.position.x;
         float xDist = Mathf.Abs(xPosPipe - xPosBird);
 
-        float invValue = 1f / xDist;
-
-        return invValue * pWeight;
+        return 1f / xDist;
     }
 
     private bool CanJump()
@@ -119,12 +112,8 @@ public class FlappyBehaviour : MonoBehaviour
 
         float[] inputs = new float[NeuralN.NumInput];
 
-        float topHeight = nextPipe.TopPipeHeight.transform.position.y;
-        float botHeight = nextPipe.BotPipeHeight.transform.position.y;
-
-        float birdHeight = transform.position.y;
-        float topDist = Mathf.Abs(topHeight - birdHeight);
-        float botDist = Mathf.Abs(botHeight - birdHeight);
+        float topDist, botDist;
+        CalculateHeightDistance(nextPipe, out  topDist, out botDist);
 
         inputs[0] = topDist;
         inputs[1] = botDist;
@@ -135,32 +124,13 @@ public class FlappyBehaviour : MonoBehaviour
 
         if (lastPipe != null)
         {
-            float topHeightLast = lastPipe.TopPipeHeight.transform.position.y;
-            float botHeightLast = lastPipe.BotPipeHeight.transform.position.y;
+            CalculateHeightDistance(lastPipe, out topDist, out botDist);
 
-            float topDistLast = Mathf.Abs(topHeightLast - birdHeight);
-            float botDistLast = Mathf.Abs(botHeightLast - birdHeight);
+            inputs[2] = topDist;
+            inputs[3] = botDist;
 
-            inputs[2] = topDistLast;
-            inputs[3] = botDistLast;
-
-            float xPosPipe = nextPipe.transform.position.x;
-
-            float xPosBird = transform.position.x;
-            float xDist = Mathf.Abs(xPosPipe - xPosBird);
-
-            float invValue = 1f / xDist;
-
-            inputs[4] = invValue;
-
-            xPosPipe = lastPipe.transform.position.x;
-
-            xPosBird = transform.position.x;
-            xDist = Mathf.Abs(xPosPipe - xPosBird);
-
-            invValue = 1f / xDist;
-
-            inputs[5] = invValue;
+            inputs[4] = CalculateInvHorizDist(nextPipe);
+            inputs[5] = CalculateInvHorizDist(lastPipe);
         }
 
         return NeuralN.ComputeNetwork(inputs)[0];
@@ -171,14 +141,23 @@ public class FlappyBehaviour : MonoBehaviour
         PipeBehaviour nextPipe = PipeM.Pipes[0];
         PipeBehaviour lastPipe = PipeM.LastPipe;
 
-        float weightSum = CalculateHeightWeightSum(nextPipe);
+        float topDist, botDist;
+
+        CalculateHeightDistance(nextPipe, out topDist, out botDist);
+        float weightSum = 
+            (topDist * Individual.TopHeightW) +
+            (botDist * Individual.BotHeightW);
+
 
         if (lastPipe != null)
         {
-            float lastWeightSum = CalculateHeightWeightSum(lastPipe);
+            CalculateHeightDistance(lastPipe, out topDist, out botDist);
+            float lastWeightSum = 
+                (topDist * Individual.TopHeightW) +
+                (botDist * Individual.BotHeightW);
 
-            float nextDistW = CalculateDistanceWeight(nextPipe, Individual.NextDistW);
-            float lastDistW = CalculateDistanceWeight(lastPipe, Individual.LastDistW);
+            float nextDistW = CalculateInvHorizDist(nextPipe) * Individual.NextDistW;
+            float lastDistW = CalculateInvHorizDist(lastPipe) * Individual.LastDistW;
 
             weightSum = (weightSum * nextDistW) + (lastWeightSum * lastDistW);
         }
