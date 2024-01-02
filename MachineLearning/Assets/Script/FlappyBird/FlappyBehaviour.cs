@@ -14,13 +14,15 @@ public class FlappyBehaviour : MonoBehaviour
 
     #region NEAT
     public BirdIndividual Individual;
-    public NeuralNetwork NeuralN = new NeuralNetwork();
+    public NeuralNetwork NeuralN;
     #endregion
     
     private void Start()
     {
         rb = GetComponent<Rigidbody2D>();
         PipeM = FindAnyObjectByType<PipeManager>();
+
+        NeuralN.GenerateBlankNetwork();
     }
 
     // Update is called once per frame

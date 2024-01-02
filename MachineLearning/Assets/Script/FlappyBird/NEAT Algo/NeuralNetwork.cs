@@ -90,7 +90,7 @@ public class NeuralNetwork
 
     List<List<Neuron>> Neurons = new List<List<Neuron>>();
 
-    public NeuralNetwork()
+    public void GenerateBlankNetwork()
     {
         List<Neuron> lastLayer = new List<Neuron>();
 
