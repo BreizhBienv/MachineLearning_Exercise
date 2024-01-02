@@ -20,23 +20,27 @@ enum ActivationFunction
 class Neuron
 {
     public NeuronType Type;
-    public uint ID;
 
     public ActivationFunction Activation;
     public double InputValue;
     public double OutputValue;
 
-    public Neuron(NeuronType pType, uint pID, ActivationFunction pActivation)
+    public List<Link> Links;
+
+    public Neuron(NeuronType pType, ActivationFunction pActivation)
     {
         Type = pType;
-        ID = pID;
         Activation = pActivation;
         InputValue = 0;
         OutputValue = 0;
+        Links = new List<Link>();
     }
 
     public double ComputeActivationFunction()
     {
+        if (Type == NeuronType.Input || Type == NeuronType.Bias)
+            return 0;
+
         double result = 0;
 
         switch (Activation)
@@ -58,26 +62,13 @@ class Neuron
 
 class Link
 {
-    public LinkID ID;
-
+    public Neuron Output;
     public double Weight;
 
-    public Link(LinkID pID, double pW)
+    public Link(Neuron pOutput, double pW)
     {
-        ID = pID;
-        Weight = pW;
-    }
-}
-
-struct LinkID
-{
-    public uint Input;
-    public uint Output;
-
-    public LinkID(uint pInput, uint pOutput)
-    {
-        Input = pInput;
         Output = pOutput;
+        Weight = pW;
     }
 }
 
@@ -98,17 +89,13 @@ public class NeuralNetwork
     public NEAT Neat = new NEAT();
 
     List<List<Neuron>> Neurons = new List<List<Neuron>>();
-    List<Link> Links = new List<Link>();
-    List<uint> FreeIds = new List<uint>();
-    uint IdCounter;
 
-    public void GenerateBlankNetwork()
+    public NeuralNetwork()
     {
         List<Neuron> lastLayer = new List<Neuron>();
-        uint currID = 0;
 
-        for (; currID < NumInput; ++currID)
-            lastLayer.Add(new Neuron(NeuronType.Input, currID, ActivationFunction.TanH));
+        for (int i = 0; i < NumInput; ++i)
+            lastLayer.Add(new Neuron(NeuronType.Input, ActivationFunction.TanH));
 
         Neurons.Add(new List<Neuron>(lastLayer));
         lastLayer.Clear();
@@ -116,26 +103,23 @@ public class NeuralNetwork
         for (uint i = 0; i < NeuronsInLayers.Length; i++)
         {
             uint numNeuron = NeuronsInLayers[i];
-            uint maxID = numNeuron + currID;
 
-            for (; currID < maxID; ++currID)
-                lastLayer.Add(new Neuron(NeuronType.Hidden, currID, ActivationFunction.TanH));
+            for (int j = 0; j < numNeuron; ++j)
+                lastLayer.Add(new Neuron(NeuronType.Hidden, ActivationFunction.TanH));
 
             Neurons.Add(new List<Neuron>(lastLayer));
             lastLayer.Clear();
         }
 
-        uint maxIDbis = NumOutput + currID;
-        for (; currID < maxIDbis; ++currID)
-            lastLayer.Add(new Neuron(NeuronType.Output, currID, ActivationFunction.TanH));
+        for (int i = 0; i < NumOutput; ++i)
+            lastLayer.Add(new Neuron(NeuronType.Output, ActivationFunction.TanH));
 
         Neurons.Add(new List<Neuron>(lastLayer));
-        IdCounter = currID;
 
-        GenerateNetworkConnections();
+        GenerateBlankNetworkConnections();
     }
 
-    private void GenerateNetworkConnections()
+    private void GenerateBlankNetworkConnections()
     {
         for (int i = 0; i < Neurons.Count - 1; ++i) 
         {
@@ -143,15 +127,8 @@ public class NeuralNetwork
             List<Neuron> outputLayer = Neurons[i + 1];
 
             foreach (Neuron input in inputLayer)
-            {
-                uint id = input.ID;
-
                 foreach (Neuron output in outputLayer)
-                {
-                    Links.Add(new Link(new LinkID(id, output.ID),
-                        RngHelper.RandomInRange(LinkWeightRange)));
-                }
-            }
+                    input.Links.Add(new Link(output, RngHelper.RandomInRange(LinkWeightRange)));
         }
     }
 
@@ -162,34 +139,19 @@ public class NeuralNetwork
             Neurons.First()[i].OutputValue = pInputs[i];
 
         //Go through all layers
-        for (int i = 0; i < Neurons.Count - 1; ++i)
+        for (int i = 0; i < Neurons.Count; ++i)
         {
             List<Neuron> inputLayer = Neurons[i];
-            List<Neuron> outputLayer = Neurons[i + 1];
 
-            //Go through output layer
-            for (int j = 0; j < outputLayer.Count; ++j)
+            //Go trough input layer
+            for (int j = 0; j < inputLayer.Count; ++j)
             {
-                uint outID = outputLayer[j].ID;
+                Neuron input = inputLayer[j];
+                input.ComputeActivationFunction();
 
-                //Go through input layer
-                for (int k = 0; k < inputLayer.Count; ++k)
-                {
-                    uint inID = inputLayer[k].ID;
-
-                    Link link = Links.Find(item =>
-                         item.ID.Input == inID &&
-                         item.ID.Output == outID);
-
-                    if (link == null)
-                        continue;
-
-                    double weight = link.Weight;
-                    outputLayer[j].InputValue += (inputLayer[k].OutputValue * weight);
-                }
-
-                //Comput OutputNode
-                outputLayer[j].ComputeActivationFunction();
+                //Go through links
+                foreach (Link link in input.Links)
+                    link.Output.InputValue += (input.OutputValue * link.Weight);                       
             }
         }
 
@@ -202,46 +164,43 @@ public class NeuralNetwork
     }
 
     #region Mutation
+    private void AddNeuron(int layer)
+    {
+        Neuron newNeuron = new Neuron(NeuronType.Hidden, ActivationFunction.TanH);
+        Neurons[layer].Add(newNeuron);
+        GenerateNewConnections(newNeuron, layer);
+    }
+
     private void RemoveNeuron(Neuron pNeuron, int layer)
     {
-        FreeIds.Add(pNeuron.ID);
-        
-        Links.RemoveAll(item => 
-        item.ID.Input == pNeuron.ID ||
-        item.ID.Output == pNeuron.ID);
-
+        RemoveConnection(pNeuron, layer);
         Neurons[layer].Remove(pNeuron);
     }
 
-    private void AddNeuron(int layer)
-    {
-        uint id;
-
-        if (FreeIds.Count <= 0)
-        {
-            IdCounter++;
-            id = IdCounter;
-        }
-        else
-        {
-            id = FreeIds[0];
-            FreeIds.RemoveAt(0);
-        }
-
-        Neurons[layer].Add(new Neuron(NeuronType.Hidden, id, ActivationFunction.TanH));
-        GenerateNewConnections(id, layer);
-    }
-
-    private void GenerateNewConnections(uint id, int layer)
+    private void GenerateNewConnections(Neuron pNewNeuron, int layer)
     {
         List<Neuron> inputLayer = Neurons[layer - 1];
         List<Neuron> outputLayer = Neurons[layer + 1];
 
         foreach (Neuron neuron in inputLayer)
-            Links.Add(new Link(new LinkID(neuron.ID, id), RngHelper.RandomInRange(LinkWeightRange)));
+            neuron.Links.Add(new Link(pNewNeuron, RngHelper.RandomInRange(LinkWeightRange)));
 
         foreach (Neuron neuron in outputLayer)
-            Links.Add(new Link(new LinkID(id, neuron.ID), RngHelper.RandomInRange(LinkWeightRange)));
+            pNewNeuron.Links.Add(new Link(neuron, RngHelper.RandomInRange(LinkWeightRange)));
+    }
+
+    private void RemoveConnections(Neuron deletedNeuron, int layer)
+    {
+        List<Neuron> inputLayer = Neurons[layer - 1];
+
+        foreach (Neuron neuron in inputLayer)
+        {
+            int index = neuron.Links.FindIndex(item => item.Output == deletedNeuron);
+            if (index < 0)
+                continue;
+
+            neuron.Links.RemoveAt(index);
+        }
     }
 
     private void TryMutateRandomLayer()
@@ -251,7 +210,6 @@ public class NeuralNetwork
             return;
 
         int randLayer = UnityEngine.Random.Range(1, NeuronsInLayers.Count());
-        
         rand = UnityEngine.Random.Range(0f, 1f);
 
         if (rand < 0.5f)
@@ -263,24 +221,19 @@ public class NeuralNetwork
             AddNeuron(randLayer);
     }
 
-    private void TryMutateRandomWeight()
+    private void TryMutateWeight(Link pLink)
     {
         float rand = UnityEngine.Random.Range(0f, 1f);
 
         if (rand < Neat.WeightMutationChance)
             return;
 
-        int randLink = UnityEngine.Random.Range(0, Links.Count() - 1);
-        Links[randLink].Weight = RngHelper.RandomInRange(LinkWeightRange);
+        pLink.Weight = RngHelper.RandomInRange(LinkWeightRange);
     }
     #endregion
 
     #region CrossOver
 
-    private Neuron CrossOver_Neuron(Neuron dominant, Neuron recissive)
-    {
-        return RngHelper.Choose(0.5f, ref dominant, ref recissive);
-    }
     #endregion
     public static bool operator <(NeuralNetwork lhs, NeuralNetwork rhs)
     {
