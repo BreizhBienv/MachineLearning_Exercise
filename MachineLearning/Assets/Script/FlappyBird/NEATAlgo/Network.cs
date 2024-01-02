@@ -1,86 +1,14 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEngine;
-using static Unity.Burst.Intrinsics.Arm;
 
-public enum NeuronType
-{
-    Input,
-    Bias,
-    Hidden,
-    Output,
-}
-
-public enum ActivationFunction
-{
-    Sigmoid,
-    TanH,
-}
-
-public class Neuron
-{
-    public NeuronType Type;
-
-    public ActivationFunction Activation;
-    public double InputValue;
-    public double OutputValue;
-
-    public List<Link> Links;
-
-    public Neuron(NeuronType pType, ActivationFunction pActivation)
-    {
-        Type = pType;
-        Activation = pActivation;
-        InputValue = 0;
-        OutputValue = 0;
-        Links = new List<Link>();
-    }
-
-    public double ComputeActivationFunction()
-    {
-        if (Type == NeuronType.Input || Type == NeuronType.Bias)
-            return 0;
-
-        double result = 0;
-
-        switch (Activation)
-        {
-            case ActivationFunction.Sigmoid:
-                result = NeuralNetworkHelper.Sigmoid(InputValue);
-                break;
-
-            case ActivationFunction.TanH:
-                result = Math.Tanh(InputValue);
-                break;
-        }
-
-        InputValue = 0;
-        OutputValue = result;
-        return result;
-    }
-}
-
-public class Link
-{
-    public Neuron Output;
-    public double Weight;
-
-    public Link(Neuron pOutput, double pW)
-    {
-        Output = pOutput;
-        Weight = pW;
-    }
-}
-
-public class NeuralNetwork
+public class Network
 {
     public uint NumInput;
     uint NumOutput;
 
     int Bias;
 
-    List<uint> NeuronsInLayers = new List<uint>();
+    List<uint> DefaultNetwork;
 
     public float Fitness;
     uint LinkWeightRange;
@@ -88,80 +16,62 @@ public class NeuralNetwork
     float WeightMutationChance;
     float LayerMuationChance;
 
-    List<List<Neuron>> Genome = new List<List<Neuron>>();
+    List<Layer> Genome;
 
-    public NeuralNetwork(uint pNumInput, uint pNumOutput, int pBias,
-        List<uint> pNeurons, uint pLinkWRange)
+    public Network()
     {
-        NumInput = pNumInput;
-        NumOutput = pNumOutput;
-        Bias = pBias;
-        NeuronsInLayers = pNeurons;
-        LinkWeightRange = pLinkWRange;
+        RetrieveDefaultParameters();
 
-        WeightMutationChance = BirdPopulation.Instance.WeightMutationChance;
-        LayerMuationChance = BirdPopulation.Instance.LayerMuationChance;
+        Genome = new List<Layer>(DefaultNetwork.Count);
 
-        GenerateBlankNetwork();
+        GenerateDefaultNetwork();
     }
 
-    public NeuralNetwork(uint pNumInput, uint pNumOutput, int pBias,
-        List<List<Neuron>> pGenome)
+    public Network(List<Layer> pGenome)
     {
-        NumInput = pNumInput;
-        NumOutput = pNumOutput;
-        Bias = pBias;
+        RetrieveDefaultParameters();
+        
         Genome = pGenome;
-
-        WeightMutationChance = BirdPopulation.Instance.WeightMutationChance;
-        LayerMuationChance = BirdPopulation.Instance.LayerMuationChance;
     }
 
-    public void GenerateBlankNetwork()
+    private void RetrieveDefaultParameters()
     {
-        List<Neuron> lastLayer = new List<Neuron>();
+        NumInput = NetworkHelper.Instance.NumInput;
+        NumOutput = NetworkHelper.Instance.NumOutput;
+        Bias = NetworkHelper.Instance.Bias;
+        DefaultNetwork = NetworkHelper.Instance.DefaultNetwork;
 
-        for (int i = 0; i < NumInput; ++i)
-            lastLayer.Add(new Neuron(NeuronType.Input, ActivationFunction.TanH));
-
-        Neuron bias = new Neuron(NeuronType.Bias, ActivationFunction.TanH);
-        bias.OutputValue = Bias;
-
-        lastLayer.Add(bias);
-
-        Genome.Add(new List<Neuron>(lastLayer));
-        lastLayer.Clear();
-
-        for (uint i = 0; i < NeuronsInLayers.Count; i++)
-        {
-            uint numNeuron = NeuronsInLayers[(int)i];
-
-            for (int j = 0; j < numNeuron; ++j)
-                lastLayer.Add(new Neuron(NeuronType.Hidden, ActivationFunction.TanH));
-
-            Genome.Add(new List<Neuron>(lastLayer));
-            lastLayer.Clear();
-        }
-
-        for (int i = 0; i < NumOutput; ++i)
-            lastLayer.Add(new Neuron(NeuronType.Output, ActivationFunction.TanH));
-
-        Genome.Add(new List<Neuron>(lastLayer));
-
-        GenerateGenomeConnections();
+        LinkWeightRange = NetworkHelper.Instance.LinkWeightRange;
+        WeightMutationChance = NetworkHelper.Instance.WeightMutationChance;
+        LayerMuationChance = NetworkHelper.Instance.LayerMuationChance;
     }
 
-    private void GenerateGenomeConnections()
+    public void GenerateDefaultNetwork()
     {
-        for (int i = 0; i < Genome.Count - 1; ++i) 
-        {
-            List<Neuron> inputLayer = Genome[i];
-            List<Neuron> outputLayer = Genome[i + 1];
+        Layer newLayer = null;
+        Layer lastLayer = null;
 
-            foreach (Neuron input in inputLayer)
-                foreach (Neuron output in outputLayer)
-                    input.Links.Add(new Link(output, RngHelper.RandomInRange(LinkWeightRange)));
+        //Input layer
+        lastLayer = new Layer(NeuronType.Input, NumInput);
+        Genome.Add(lastLayer);
+
+        //TODO Input Bias
+
+        //Hidden layers
+        for (uint i = 0; i < DefaultNetwork.Count; i++)
+        {
+            newLayer = new Layer(NeuronType.Hidden, DefaultNetwork[(int)i]);
+            Genome.Add(newLayer);
+
+            newLayer.GenerateLayerConnections(lastLayer, false);
+            lastLayer = newLayer;
         }
+
+        //Output layer
+        newLayer = new Layer(NeuronType.Output, NumOutput);
+        Genome.Add(newLayer);
+
+        newLayer.GenerateLayerConnections(lastLayer, false);
     }
 
     public double[] ComputeNetwork(float[] pInputs)
@@ -278,7 +188,7 @@ public class NeuralNetwork
     #endregion
 
     #region CrossOver
-    public NeuralNetwork Mate(NeuralNetwork pRecissive)
+    public Network Mate(Network pRecissive)
     {
         List<List<Neuron>> newGenome = new List<List<Neuron>>();
         for (int i = 0; i < Genome.Count; ++i)
@@ -290,7 +200,7 @@ public class NeuralNetwork
         ReconnectNeurons(newGenome);
         TryMutateWeight(newGenome);
 
-        return new NeuralNetwork(NumInput, NumOutput, bias, newGenome);
+        return new Network(NumInput, NumOutput, bias, newGenome);
     }
 
     private void ReconnectNeurons(List<List<Neuron>> pGenome)
@@ -329,12 +239,12 @@ public class NeuralNetwork
         return layerPassedOn;
     }
     #endregion
-    public static bool operator <(NeuralNetwork lhs, NeuralNetwork rhs)
+    public static bool operator <(Network lhs, Network rhs)
     {
         return lhs.Fitness < rhs.Fitness;
     }
 
-    public static bool operator >(NeuralNetwork lhs, NeuralNetwork rhs)
+    public static bool operator >(Network lhs, Network rhs)
     {
         return lhs.Fitness > rhs.Fitness;
     }

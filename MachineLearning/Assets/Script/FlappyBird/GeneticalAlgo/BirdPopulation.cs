@@ -21,19 +21,8 @@ public class BirdPopulation : MonoBehaviour
     [SerializeField] private TMP_InputField InputM;
     [SerializeField] private  Scrollbar     ScrollBarM;
 
-    [Header("Algo param")]
-    [SerializeField] public uint            RangeOfRandom = 10;
-    [Range(0.0f, 1.0f)]
-    [SerializeField] public float           WeightMutationChance;
-    [Range(0.0f, 1.0f)]
-    [SerializeField] public float           LayerMuationChance;
+    [Header("Other")]
     [SerializeField] private GameObject     BirdPrefab;
-    
-    [Header("Network params")]
-    [SerializeField] public uint            NumInput;
-    [SerializeField] uint                   NumOutput;
-    [SerializeField] int                    Bias;
-    [SerializeField] List<uint>             NeuronsInLayers = new List<uint>();
 
     int MaxPopulation = 10;
     int TopSurvivorPercent = 10;
@@ -41,7 +30,7 @@ public class BirdPopulation : MonoBehaviour
 
     [NonSerialized] public int CurrentGen = 0;
 
-    List<NeuralNetwork> Population = new List<NeuralNetwork>();
+    List<Network> Population = new List<Network>();
 
     bool IsGeneratingNewGen = true;
 
@@ -180,14 +169,14 @@ public class BirdPopulation : MonoBehaviour
         //Sort population by descending fitness
         Population = GetSortedPopulation();
 
-        List<NeuralNetwork> newGen = new List<NeuralNetwork>(MaxPopulation);
+        List<Network> newGen = new List<Network>(MaxPopulation);
 
         //Perform elitist selction from population
         //only top 'TopSurvivorPercent' of the population will be part of the new generation
         int s = (TopSurvivorPercent * MaxPopulation) / 100;
         for (int i = 0; i < s; ++i)
         {
-            NeuralNetwork indiv = Population[i];
+            Network indiv = Population[i];
             indiv.Fitness = 0;
             newGen.Add(indiv);
         }
@@ -199,12 +188,12 @@ public class BirdPopulation : MonoBehaviour
             int populationSample = (TopMatingPercent / 100) * MaxPopulation;
 
             int r = UnityEngine.Random.Range(0, populationSample);
-            NeuralNetwork parent1 = Population[r];
+            Network parent1 = Population[r];
 
             r = UnityEngine.Random.Range(0, populationSample);
-            NeuralNetwork parent2 = Population[r];
+            Network parent2 = Population[r];
 
-            NeuralNetwork offspring = parent1.Mate(parent2);
+            Network offspring = parent1.Mate(parent2);
             newGen.Add(offspring);
         }
 
@@ -212,7 +201,7 @@ public class BirdPopulation : MonoBehaviour
         Population = newGen;
     }
 
-    public List<NeuralNetwork> GetSortedPopulation()
+    public List<Network> GetSortedPopulation()
     {
         return Population.OrderByDescending(o => o.Fitness).ToList();
     }

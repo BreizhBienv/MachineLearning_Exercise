@@ -13,7 +13,7 @@ public class FlappyBehaviour : MonoBehaviour
     private PipeManager PipeM;
 
     #region NEAT
-    public NeuralNetwork NeuralN;
+    public Network NeuralN;
     #endregion
     
     private void Start()

@@ -461,7 +461,7 @@ MonoBehaviour:
   BirdPrefab: {fileID: 4003533385302428095, guid: b889affd0c053154d862c9f6cae93e59, type: 3}
   NumInput: 3
   NumOutput: 1
-  Bias: 0
+  Bias: 1
   NeuronsInLayers: 030000000500000002000000
 --- !u!1 &63819248
 GameObject:

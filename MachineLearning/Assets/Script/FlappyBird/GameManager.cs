@@ -125,7 +125,7 @@ public class GameManager : MonoBehaviour
 
     public void SaveAI()
     {
-        List<NeuralNetwork> pop = BirdPopulation.Instance.GetSortedPopulation();
+        List<Network> pop = BirdPopulation.Instance.GetSortedPopulation();
 
         if (pop.Count <= 0)
             return;
