@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Security.Cryptography;
 
 public class Layer
 {
@@ -16,6 +17,18 @@ public class Layer
     public void GenerateLayerConnections(Layer pInputLayer, bool pShouldKeepOldW)
     {
         foreach (Neuron neuron in Neurons)
-            neuron.GenerateNewLinks(pInputLayer, pShouldKeepOldW);
+            neuron.GenerateLayerLinks(pInputLayer, pShouldKeepOldW);
+    }
+
+    public void ComputLayer()
+    {
+        foreach (Neuron n in Neurons)
+            n.ComputeActivationFunction();
+    }
+
+    public void MutateRandomNeuronLink()
+    {
+        int randN = UnityEngine.Random.Range(0, Neurons.Count - 1);
+        Neurons[randN].MutaterandomLink();
     }
 }

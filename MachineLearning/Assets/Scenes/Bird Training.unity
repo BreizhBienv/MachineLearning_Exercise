@@ -396,6 +396,7 @@ GameObject:
   - component: {fileID: 35511411}
   - component: {fileID: 35511410}
   - component: {fileID: 35511412}
+  - component: {fileID: 35511413}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -455,14 +456,26 @@ MonoBehaviour:
   ScrollBarS: {fileID: 129392275}
   InputM: {fileID: 29278139}
   ScrollBarM: {fileID: 1251413600}
-  RangeOfRandom: 10
-  WeightMutationChance: 0.1
-  LayerMuationChance: 0.1
   BirdPrefab: {fileID: 4003533385302428095, guid: b889affd0c053154d862c9f6cae93e59, type: 3}
+--- !u!114 &35511413
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 35511409}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3aab9808abb2b6b4ea102a6196b2145e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
   NumInput: 3
   NumOutput: 1
-  Bias: 1
-  NeuronsInLayers: 030000000500000002000000
+  Bias: 0
+  DefaultNetwork: 030000000400000002000000
+  LinkWeightRange: 10
+  WeightMutationChance: 0.1
+  LayerMuationChance: 0.1
 --- !u!1 &63819248
 GameObject:
   m_ObjectHideFlags: 0

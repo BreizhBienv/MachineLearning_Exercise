@@ -15,7 +15,7 @@ public class BirdIndividual
 
     public BirdIndividual()
     {
-        RangeOfRandom = BirdPopulation.Instance.RangeOfRandom;
+        RangeOfRandom = NetworkHelper.Instance.LinkWeightRange;
 
         TopHeightW = Random.Range(-RangeOfRandom, RangeOfRandom);
         BotHeightW = Random.Range(-RangeOfRandom, RangeOfRandom);
@@ -26,7 +26,7 @@ public class BirdIndividual
 
     public BirdIndividual(float pTopPipe, float pBotPipe, float pLastDist, float pNextDist)
     {
-        RangeOfRandom = BirdPopulation.Instance.RangeOfRandom;
+        RangeOfRandom = NetworkHelper.Instance.LinkWeightRange;
 
         TopHeightW = pTopPipe;
         BotHeightW = pBotPipe;

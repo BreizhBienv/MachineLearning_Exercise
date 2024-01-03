@@ -76,7 +76,8 @@ public class Neuron
         return weightedSum;
     }
 
-    public void GenerateNewLinks(Layer pInputLayer, bool pShouldKeepOldW)
+    #region Link
+    public void GenerateLayerLinks(Layer pInputLayer, bool pShouldKeepOldW)
     {
         if (pShouldKeepOldW)
             GenerateLinkWithOldW(pInputLayer);
@@ -87,7 +88,7 @@ public class Neuron
     private void GenerateNewLink(Layer pInputLayer)
     {
         foreach (Neuron neuron in pInputLayer.Neurons)
-            InputLinks.Add(new Link(neuron, RngHelper.RandomInRange(LinkWeightRange)));
+            InputLinks.Add(new Link(neuron, RngHelper.RandomHalfExtent(LinkWeightRange)));
     }
 
     private void GenerateLinkWithOldW(Layer pInputLayer)
@@ -99,11 +100,18 @@ public class Neuron
 
             Neuron input = pInputLayer.Neurons[i];
             double oldW = newLink ?
-                RngHelper.RandomInRange(LinkWeightRange) :
+                RngHelper.RandomHalfExtent(LinkWeightRange) :
                 InputLinks[i].Weight;
 
             links.Add(new Link(input, oldW));
         }
         InputLinks = links;
     }
+
+    public void MutaterandomLink()
+    {
+        int randLink = UnityEngine.Random.Range(0, InputLinks.Count - 1);
+        InputLinks[randLink].Weight = RngHelper.RandomHalfExtent(LinkWeightRange);
+    }
+    #endregion
 }

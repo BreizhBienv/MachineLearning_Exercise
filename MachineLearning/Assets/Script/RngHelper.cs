@@ -10,7 +10,7 @@ public class RngHelper
         return pSeparation < rand ? a : b;
     }
 
-    public static float RandomInRange(uint pRange)
+    public static float RandomHalfExtent(uint pRange)
     {
         return UnityEngine.Random.Range(-pRange, pRange);
     }
