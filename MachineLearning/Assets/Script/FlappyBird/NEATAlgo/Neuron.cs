@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Unity.VisualScripting;
 
 public enum NeuronType
 {
@@ -77,21 +78,21 @@ public class Neuron
     }
 
     #region Link
-    public void GenerateLayerLinks(Layer pInputLayer, bool pShouldKeepOldW)
+    public void GenerateInputLinks(Layer pInputLayer, bool pShouldKeepOldW)
     {
         if (pShouldKeepOldW)
-            GenerateLinkWithOldW(pInputLayer);
+            GenerateLinksWithOldW(pInputLayer);
         else
-            GenerateNewLink(pInputLayer);
+            GenerateNewLinks(pInputLayer);
     }
 
-    private void GenerateNewLink(Layer pInputLayer)
+    private void GenerateNewLinks(Layer pInputLayer)
     {
         foreach (Neuron neuron in pInputLayer.Neurons)
             InputLinks.Add(new Link(neuron, RngHelper.RandomHalfExtent(LinkWeightRange)));
     }
 
-    private void GenerateLinkWithOldW(Layer pInputLayer)
+    private void GenerateLinksWithOldW(Layer pInputLayer)
     {
         List<Link> links = new List<Link>(pInputLayer.Neurons.Count);
         for (int i = 0; i < pInputLayer.Neurons.Count; ++i)
@@ -112,6 +113,16 @@ public class Neuron
     {
         int randLink = UnityEngine.Random.Range(0, InputLinks.Count - 1);
         InputLinks[randLink].Weight = RngHelper.RandomHalfExtent(LinkWeightRange);
+    }
+
+    public void RemoveLink(Neuron pLinkedNeuron)
+    {
+        InputLinks.RemoveAll(link => link.Input == pLinkedNeuron);
+    }
+
+    public void ClearLinks()
+    {
+        InputLinks.Clear();
     }
     #endregion
 }

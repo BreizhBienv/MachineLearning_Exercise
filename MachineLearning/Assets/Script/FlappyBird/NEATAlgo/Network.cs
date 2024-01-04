@@ -80,7 +80,7 @@ public class Network
 
         //Go through all layers
         for (int i = 1; i < Genome.Count; ++i)
-            Genome[i].ComputLayer();
+            Genome[i].ComputeLayer();
 
         //Retreive all outputs
         double[] outputs = new double[NumOutput];
@@ -88,6 +88,11 @@ public class Network
             outputs[i] = Genome.Last().Neurons[i].OutputValue;
 
         return outputs;
+    }
+
+    private int GetNumHiddenLayer()
+    {
+        return Genome.FindAll(l => l.LayerType == NeuronType.Hidden).Count;
     }
 
     #region Mutation
@@ -98,21 +103,44 @@ public class Network
             return;
 
         rand = UnityEngine.Random.Range(0f, 1f);
-        int randLayer = UnityEngine.Random.Range(1, pGenome.Count - 1);
+
+        int numHiddenLayer = GetNumHiddenLayer();
+        int randLayer = UnityEngine.Random.Range(1, numHiddenLayer);
 
         //lower than .5 rmv neuron, higher -> add neuron
         if (rand < 0.5f)
         {
-            //test if presence of hidden layer
-            if (pGenome.Count - 2 > 0)
+            //test if there are hidden layers
+            if (numHiddenLayer > 0)
             {
+                pGenome[randLayer].RemoveRandomNeuron(pGenome[randLayer + 1]);
 
+                //remove layer if layer.Neurons.count <= 0
+                RemoveLayer(pGenome[randLayer], randLayer);
             }
         }
         else
         {
-
+            //if only input and output layer -> create new hidden layer
+            if (numHiddenLayer <= 0)
+                pGenome.Insert(1, new Layer(NeuronType.Hidden, 1));
+            else
+                pGenome[randLayer].AddNeuron(pGenome[randLayer - 1]);
         }
+    }
+
+    private void RemoveLayer(Layer pToRemove, int pLayerIndex)
+    {
+        if (pToRemove.Neurons.Count > 0)
+            return;
+
+        Layer intputL = Genome[pLayerIndex - 1];
+        Layer outputL = Genome[pLayerIndex + 1];
+
+        outputL.ClearNeuronsLinks();
+        outputL.GenerateLayerConnections(intputL, false);
+
+        Genome.Remove(pToRemove);
     }
 
     private void TryMutateWeight(List<Layer> pGenome)
@@ -131,11 +159,6 @@ public class Network
     public Network Mate(Network pRecissive)
     {
         return new();
-    }
-
-    private void ReconnectNeurons(List<List<Neuron>> pGenome)
-    {
-
     }
 
     private List<Neuron> CrossOver_Layer(List<Neuron> p1, List<Neuron> p2)
