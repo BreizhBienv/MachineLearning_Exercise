@@ -472,7 +472,7 @@ MonoBehaviour:
   NumInput: 3
   NumOutput: 1
   Bias: 0
-  DefaultNetwork: 030000000400000002000000
+  DefaultNetwork: 
   LinkWeightRange: 10
   WeightMutationChance: 0.1
   LayerMuationChance: 0.1

@@ -1,5 +1,7 @@
 
 
+using System;
+
 public class RngHelper
 {
     //Choose a if random value is lower than separation and b if random is superior than separation
@@ -13,5 +15,12 @@ public class RngHelper
     public static float RandomHalfExtent(uint pRange)
     {
         return UnityEngine.Random.Range(-pRange, pRange);
+    }
+
+    public static ActivationFunction RandomActivationFunction()
+    {
+        Array values = Enum.GetValues(typeof(ActivationFunction));
+        Random random = new Random();
+        return (ActivationFunction)values.GetValue(random.Next(values.Length));
     }
 }

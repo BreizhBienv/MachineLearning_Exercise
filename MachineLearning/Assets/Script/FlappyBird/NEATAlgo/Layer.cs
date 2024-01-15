@@ -13,7 +13,7 @@ public class Layer
         Neurons = new List<Neuron>((int)pNumNeurons);
 
         for (int i = 0; i < pNumNeurons; ++i)
-            Neurons.Add(new Neuron(pType, ActivationFunction.TanH));
+            Neurons.Add(new Neuron(pType, RngHelper.RandomActivationFunction()));
     }
 
     public void GenerateLayerConnections(Layer pInputLayer, bool pShouldKeepOldW)
@@ -45,7 +45,7 @@ public class Layer
 
     public void AddNeuron(Layer pInputLayer)
     {
-        Neuron newNeuron = new Neuron(NeuronType.Hidden, ActivationFunction.TanH);
+        Neuron newNeuron = new Neuron(NeuronType.Hidden, RngHelper.RandomActivationFunction());
         Neurons.Add(newNeuron);
         newNeuron.GenerateInputLinks(pInputLayer, false);
     }

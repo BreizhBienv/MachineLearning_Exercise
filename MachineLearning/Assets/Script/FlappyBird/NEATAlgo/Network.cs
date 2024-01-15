@@ -123,7 +123,10 @@ public class Network
         {
             //if only input and output layer -> create new hidden layer
             if (numHiddenLayer <= 0)
+            {
                 pGenome.Insert(1, new Layer(NeuronType.Hidden, 1));
+                pGenome[1].GenerateLayerConnections(pGenome[0], false);
+            }
             else
                 pGenome[randLayer].AddNeuron(pGenome[randLayer - 1]);
         }
@@ -159,8 +162,8 @@ public class Network
     {
         List<Layer> newGenome = new List<Layer>();
 
-        int dominantLayers = Genome.Count - 2;
-        int recissiveLayers = pRecissive.Genome.Count - 2;
+        int dominantLayers = Genome.Count - 1;
+        int recissiveLayers = pRecissive.Genome.Count - 1;
         int layerNumber = RngHelper.Choose(0.5f, ref dominantLayers, ref recissiveLayers);
 
         Layer inputLayer = null;
