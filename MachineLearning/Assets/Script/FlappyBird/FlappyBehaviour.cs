@@ -106,30 +106,15 @@ public class FlappyBehaviour : MonoBehaviour
     private double NEATWithLayer()
     {
         PipeBehaviour nextPipe = PipeM.Pipes[0];
-        PipeBehaviour lastPipe = PipeM.LastPipe;
 
         float[] inputs = new float[NeuralN.NumInput];
 
         float topDist, botDist;
-        CalculateHeightDistance(nextPipe, out  topDist, out botDist);
+        CalculateHeightDistance(nextPipe, out topDist, out botDist);
 
         inputs[0] = topDist;
         inputs[1] = botDist;
         inputs[2] = transform.position.y;
-        //inputs[3] = 0;
-        //inputs[4] = 0;
-        //inputs[5] = 0;
-
-        //if (lastPipe != null)
-        //{
-        //    CalculateHeightDistance(lastPipe, out topDist, out botDist);
-
-        //    inputs[2] = topDist;
-        //    inputs[3] = botDist;
-
-        //    inputs[4] = CalculateInvHorizDist(nextPipe);
-        //    inputs[5] = CalculateInvHorizDist(lastPipe);
-        //}
 
         return NeuralN.ComputeNetwork(inputs)[0];
     }

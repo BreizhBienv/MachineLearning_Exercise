@@ -151,21 +151,52 @@ public class Network
 
         int randLayer = UnityEngine.Random.Range(1, pGenome.Count - 1);
         pGenome[randLayer].MutateRandomNeuronLink();
-
     }
     #endregion
 
     #region CrossOver
     public Network Mate(Network pRecissive)
     {
-        return new();
+        List<Layer> newGenome = new List<Layer>();
+
+        int dominantLayers = Genome.Count - 2;
+        int recissiveLayers = pRecissive.Genome.Count - 2;
+        int layerNumber = RngHelper.Choose(0.5f, ref dominantLayers, ref recissiveLayers);
+
+        Layer inputLayer = null;
+        for (int i = 0; i < layerNumber; ++i)
+        {
+            Layer dominant = null;
+            Layer recissive = null;
+
+            if (i < Genome.Count - 1)
+                dominant = Genome[i];
+
+            if (i < pRecissive.Genome.Count - 1)
+                recissive = pRecissive.Genome[i];
+                
+            Layer choosed = RngHelper.Choose(0.5f, ref dominant, ref recissive);
+
+            if (choosed == null)
+                continue;
+
+            newGenome.Add(choosed);
+
+            choosed.GenerateLayerConnections(inputLayer, true);
+            inputLayer = choosed;
+        }
+
+        Layer outputDominant = Genome.Last();
+        Layer outputRecissive = pRecissive.Genome.Last();
+
+        newGenome.Add(RngHelper.Choose(0.5f, ref outputDominant, ref outputRecissive));
+
+        TryMutateRandomLayer(newGenome);
+        TryMutateWeight(newGenome);
+
+        return new(newGenome);
     }
 
-    private List<Neuron> CrossOver_Layer(List<Neuron> p1, List<Neuron> p2)
-    {
-        List<Neuron> layerPassedOn = RngHelper.Choose(0.5f, ref p1, ref p2);
-        return layerPassedOn;
-    }
     #endregion
     public static bool operator <(Network lhs, Network rhs)
     {

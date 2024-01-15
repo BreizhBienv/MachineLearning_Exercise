@@ -152,8 +152,8 @@ public class BirdPopulation : MonoBehaviour
 
         if (baseCopie == null)
         {
-            //for (int i = 0; i < MaxPopulation; ++i)
-            //    Population.Add(new NeuralNetwork(NumInput, NumOutput, Bias, NeuronsInLayers, RangeOfRandom));
+            for (int i = 0; i < MaxPopulation; ++i)
+                Population.Add(new Network());
 
             return;
         }

@@ -18,6 +18,9 @@ public class Layer
 
     public void GenerateLayerConnections(Layer pInputLayer, bool pShouldKeepOldW)
     {
+        if (pInputLayer == null)
+            return;
+
         foreach (Neuron neuron in Neurons)
             neuron.GenerateInputLinks(pInputLayer, pShouldKeepOldW);
     }
